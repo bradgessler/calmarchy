@@ -1,0 +1,8 @@
+#!/bin/bash
+# Super+Tab: rotate the stack the active window is in; with no stack, cycle
+# through the workspace's windows instead.
+# usage: omarchy-window-cycle [next|prev]
+dir=${1:-next}
+omarchy-stack-cycle "$dir" && exit 0
+next=true; [[ $dir == prev ]] && next=false
+hyprctl --batch "dispatch hl.dsp.window.cycle_next({ next = $next }); dispatch hl.dsp.window.bring_to_top()" >/dev/null

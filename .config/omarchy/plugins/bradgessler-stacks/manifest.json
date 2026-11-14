@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "bradgessler.stacks",
+  "name": "Stacks",
+  "version": "1.0.0",
+  "author": "Brad Gessler",
+  "description": "A thin strip along the bottom edge with dots under each stack of windows; the front window's dot is brighter.",
+  "kinds": ["service"],
+  "entryPoints": { "service": "Service.qml" }
+}

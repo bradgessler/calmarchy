@@ -1,0 +1,28 @@
+#!/bin/bash
+# Rotate through the windows stacked under the active one: every window on this
+# workspace whose area mostly overlaps the active window's area. Focusing a
+# floating window raises it, so the next one in the pile comes to the front.
+# usage: omarchy-stack-cycle [next|prev]
+dir=${1:-next}
+hyprctl -j clients | jq -r --arg dir "$dir" --argjson active "$(hyprctl -j activewindow)" '
+  ($active.address // empty) as $addr
+  | ($active.workspace.id) as $ws
+  | ($active.at) as $a | ($active.size) as $s
+  | [ .[]
+      | select(.mapped and .workspace.id == $ws and (.hidden | not))
+      | . as $w
+      | ([$a[0], $w.at[0]] | max) as $x1 | ([$a[0]+$s[0], $w.at[0]+$w.size[0]] | min) as $x2
+      | ([$a[1], $w.at[1]] | max) as $y1 | ([$a[1]+$s[1], $w.at[1]+$w.size[1]] | min) as $y2
+      | (if $x2 > $x1 and $y2 > $y1 then ($x2-$x1)*($y2-$y1) else 0 end) as $inter
+      | ([$s[0]*$s[1], $w.size[0]*$w.size[1]] | min) as $smaller
+      | select($smaller > 0 and $inter / $smaller >= 0.25)
+      | .address ]
+  | sort
+  | if length < 2 then empty else
+      (index($addr)) as $i
+      | if $dir == "prev" then .[($i - 1 + length) % length] else .[($i + 1) % length] end
+    end' | {
+  # Exit 3 when the active window has no stack, so callers can fall back.
+  read -r next || exit 3
+  hyprctl --batch "dispatch hl.dsp.focus({ window = \"address:$next\" }); dispatch hl.dsp.window.bring_to_top()" >/dev/null
+}

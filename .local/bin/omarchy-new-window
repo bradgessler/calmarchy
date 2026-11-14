@@ -1,0 +1,60 @@
+#!/bin/bash
+# Cmd+N: open a new window of whatever app is focused, placed exactly over the
+# focused window so it lands on top of (and joins) that window's stack.
+win=$(hyprctl -j activewindow)
+class=$(jq -r '.class // empty' <<<"$win")
+pid=$(jq -r '.pid // empty' <<<"$win")
+read -r fx fy fw fh < <(jq -r 'if .address then "\(.at[0]) \(.at[1]) \(.size[0]) \(.size[1])" else "" end' <<<"$win")
+before=$(hyprctl -j clients | jq -r '.[].address' | sort)
+
+start() { setsid "$@" >/dev/null 2>&1 < /dev/null & }
+
+case "$class" in
+  "")
+    start omarchy-launch-terminal ;;
+  # Terminals (and Omarchy's agent console, which runs in one): a new terminal
+  # in the same directory.
+  foot|footclient|Alacritty|kitty|com.mitchellh.ghostty|org.omarchy.*|TUI.*)
+    start omarchy-launch-terminal --pid="$pid" ;;
+  firefox)
+    start uwsm-app -- firefox --new-window ;;
+  firefox-webapp-*)
+    start omarchy-firefox-webapp "https://${class#firefox-webapp-}/" ;;
+  chromium|chrome-*)
+    start uwsm-app -- chromium --new-window ;;
+  org.gnome.Nautilus)
+    start uwsm-app -- nautilus --new-window ;;
+  *)
+    # Relaunch its desktop entry, which opens a new window for most apps, or
+    # start the same program again.
+    entry=""
+    for dir in ~/.local/share/applications /usr/share/applications; do
+      for f in "$dir/$class.desktop" "$dir/${class,,}.desktop"; do
+        [[ -z $entry && -f $f ]] && entry=$(basename "$f" .desktop)
+      done
+      if [[ -z $entry ]]; then
+        f=$(grep -lis "^StartupWMClass=$class\$" "$dir"/*.desktop 2>/dev/null | head -1)
+        [[ -n $f ]] && entry=$(basename "$f" .desktop)
+      fi
+    done
+    if [[ -n $entry ]]; then
+      start uwsm-app -- gtk-launch "$entry"
+    else
+      exe=$(readlink -f "/proc/$pid/exe" 2>/dev/null)
+      [[ -x $exe ]] && start uwsm-app -- "$exe"
+    fi
+    ;;
+esac
+
+# Nothing was focused: nowhere to put it.
+[[ -n $fw ]] || exit 0
+
+# Wait for the new window, then give it the old window's frame.
+for _ in $(seq 1 50); do
+  sleep 0.1
+  new=$(comm -13 <(echo "$before") <(hyprctl -j clients | jq -r '.[].address' | sort) | head -1)
+  [[ -n $new ]] && break
+done
+[[ -n $new ]] || exit 0
+sleep 0.15
+hyprctl --batch "dispatch hl.dsp.focus({ window = \"address:$new\" }); dispatch hl.dsp.window.resize({ x = $fw, y = $fh, exact = true }); dispatch hl.dsp.window.move({ x = $fx, y = $fy, relative = false }); dispatch hl.dsp.window.bring_to_top()" >/dev/null

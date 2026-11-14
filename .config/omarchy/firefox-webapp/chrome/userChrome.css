@@ -1,0 +1,44 @@
+@import url("file:///home/bradgessler/.local/state/omarchy/current/theme/firefox.css");
+
+/* Flat, square, compact Firefox chrome. Loaded via
+   toolkit.legacyUserProfileCustomizations.stylesheets = true */
+
+/* Zero every corner radius Firefox exposes as a variable. */
+:root {
+  --tab-border-radius: 0 !important;
+  --toolbarbutton-border-radius: 0 !important;
+  --arrowpanel-border-radius: 0 !important;
+  --panel-border-radius: 0 !important;
+  --urlbar-border-radius: 0 !important;
+  --identity-box-margin-inline: 4px !important;
+  --toolbarbutton-inner-padding: 4px !important;
+  --urlbar-min-height: 26px !important;
+  --urlbar-container-height: 28px !important;
+  --toolbar-start-end-padding: 4px !important;
+}
+
+/* No tab strip. Tabs still exist: Ctrl+T, Ctrl+Tab, Ctrl+1..9. */
+#TabsToolbar { visibility: collapse !important; }
+
+/* Belt and braces: square the URL bar, search bar, buttons, menus. */
+#urlbar, #urlbar-background, #urlbar-input-container, .urlbar-input-box,
+#searchbar, .searchbar-textbox, .toolbarbutton-1, toolbarbutton,
+.toolbarbutton-icon, .toolbarbutton-badge-stack, menupopup, panel,
+.panel-arrowcontent, #identity-box, .urlbarView-row, #context-navigation {
+  border-radius: 0 !important;
+}
+
+/* Tighter nav bar so the chrome is about the height of a terminal line. */
+#nav-bar {
+  padding-block: 0 !important;
+  min-height: 30px !important;
+  max-height: 30px !important;
+}
+#navigator-toolbox {
+  font-size: 12px !important;
+  border-bottom: none !important;
+}
+#urlbar-input { font-size: 12px !important; }
+
+/* Web-app profile: no toolbar at all, just the page. */
+#nav-bar, #PersonalToolbar { visibility: collapse !important; }

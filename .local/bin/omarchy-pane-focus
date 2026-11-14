@@ -1,0 +1,35 @@
+#!/bin/bash
+# Super+Left/Right: focus the next pane over (the front window of the nearest
+# stack in that direction). Past the last pane, go to the neighboring workspace.
+# usage: omarchy-pane-focus left|right|up|down
+dir=${1:?usage: omarchy-pane-focus left|right|up|down}
+max_ws=${OMARCHY_PANE_WORKSPACES:-5}
+
+target=$(hyprctl -j clients | jq -r --arg dir "$dir" --argjson a "$(hyprctl -j activewindow)" --argjson ws "$(hyprctl -j activeworkspace | jq .id)" '
+  ($a.address // "") as $addr
+  | (if $addr == "" then null else [$a.at[0] + $a.size[0]/2, $a.at[1] + $a.size[1]/2] end) as $c
+  | [ to_entries[]
+      | .key as $z | .value
+      | select(.mapped and (.hidden | not) and .workspace.id == $ws and .address != $addr)
+      | {addr: .address, z: $z, cx: (.at[0] + .size[0]/2), cy: (.at[1] + .size[1]/2)} ]
+  | if $c == null then (sort_by(.z) | last | .addr // empty) else
+      map(. + {d: (if $dir == "left" then $c[0] - .cx elif $dir == "right" then .cx - $c[0]
+                   elif $dir == "up" then $c[1] - .cy else .cy - $c[1] end),
+               off: (if $dir == "left" or $dir == "right" then (.cy - $c[1]) else (.cx - $c[0]) end | fabs)})
+      | map(select(.d > 20))
+      # Nearest pane first; within one pane (same spot), the window on top.
+      | sort_by([(.d / 40 | floor) + (.off / 40 | floor), -.z]) | .[0].addr // empty
+    end')
+
+if [[ -n $target ]]; then
+  hyprctl --batch "dispatch hl.dsp.focus({ window = \"address:$target\" }); dispatch hl.dsp.window.bring_to_top()" >/dev/null
+  exit 0
+fi
+
+# No pane that way: move to the neighboring workspace, like a Spaces swipe.
+[[ $dir == left || $dir == right ]] || exit 0
+ws=$(hyprctl -j activeworkspace | jq .id)
+(( ws < 1 )) && exit 0
+[[ $dir == right ]] && next=$((ws + 1)) || next=$((ws - 1))
+(( next >= 1 && next <= max_ws )) || exit 0
+hyprctl dispatch "hl.dsp.focus({ workspace = $next })" >/dev/null

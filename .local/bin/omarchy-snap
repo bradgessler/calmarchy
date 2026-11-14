@@ -1,0 +1,48 @@
+#!/bin/bash
+# Rectangle.app-style snapping for floating windows.
+# usage: omarchy-snap left|right|top|bottom|full|center|tl|tr|bl|br
+#                     third-left|third-center|third-right|two-thirds-left|two-thirds-right
+pos=${1:?usage: omarchy-snap <position>}
+gap=${OMARCHY_SNAP_GAP:-8}
+
+read -r mx my mw mh scale rl rt rr rb < <(hyprctl monitors -j | jq -r '.[] | select(.focused) | [.x,.y,.width,.height,.scale,.reserved[0],.reserved[1],.reserved[2],.reserved[3]] | @tsv')
+bar=0
+if [[ $(hyprctl getoption plugin:hyprbars:enabled -j 2>/dev/null | jq -r '.int // 0') == 1 ]]; then
+  bar=$(hyprctl getoption plugin:hyprbars:bar_height -j 2>/dev/null | jq -r '.int // 0')
+fi
+
+read -r x y w h < <(awk -v pos="$pos" -v mx="$mx" -v my="$my" -v mw="$mw" -v mh="$mh" -v s="$scale" \
+  -v rl="$rl" -v rt="$rt" -v rr="$rr" -v rb="$rb" -v gap="$gap" -v bar="$bar" 'BEGIN {
+  ax = mx + rl + gap; ay = my + rt + gap
+  aw = mw / s - rl - rr - 2 * gap; ah = mh / s - rt - rb - 2 * gap
+  cw = (aw - gap) / 2; ch = (ah - gap) / 2; tw = (aw - 2 * gap) / 3
+  x = ax; y = ay; w = aw; h = ah
+  if      (pos == "left")            { w = cw }
+  else if (pos == "right")           { x = ax + cw + gap; w = cw }
+  else if (pos == "top")             { h = ch }
+  else if (pos == "bottom")          { y = ay + ch + gap; h = ch }
+  else if (pos == "tl")              { w = cw; h = ch }
+  else if (pos == "tr")              { x = ax + cw + gap; w = cw; h = ch }
+  else if (pos == "bl")              { y = ay + ch + gap; w = cw; h = ch }
+  else if (pos == "br")              { x = ax + cw + gap; y = ay + ch + gap; w = cw; h = ch }
+  else if (pos == "third-left")      { w = tw }
+  else if (pos == "third-center")    { x = ax + tw + gap; w = tw }
+  else if (pos == "third-right")     { x = ax + 2 * (tw + gap); w = tw }
+  else if (pos == "two-thirds-left") { w = 2 * tw + gap }
+  else if (pos == "two-thirds-right"){ x = ax + tw + gap; w = 2 * tw + gap }
+  else if (pos == "center")          { w = aw * 0.6; h = ah * 0.7; x = ax + (aw - w) / 2; y = ay + (ah - h) / 2 }
+  else if (pos != "full")            { exit 2 }
+  # The title bar is drawn above the client area, so leave room for it.
+  y += bar; h -= bar
+  printf "%d %d %d %d\n", x, y, w, h
+}') || { echo "omarchy-snap: unknown position '$pos'" >&2; exit 2; }
+
+win=$(hyprctl activewindow -j)
+[[ $(jq -r '.address // empty' <<<"$win") ]] || exit 0
+if [[ $(jq -r '.fullscreen' <<<"$win") != 0 ]]; then
+  hyprctl dispatch 'hl.dsp.window.fullscreen({ action = "toggle" })' >/dev/null
+fi
+if [[ $(jq -r '.floating' <<<"$win") == false ]]; then
+  hyprctl dispatch 'hl.dsp.window.float({ action = "toggle" })' >/dev/null
+fi
+hyprctl --batch "dispatch hl.dsp.window.resize({ x = $w, y = $h, exact = true }); dispatch hl.dsp.window.move({ x = $x, y = $y, relative = false })" >/dev/null

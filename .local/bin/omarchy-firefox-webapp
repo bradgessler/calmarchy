@@ -1,0 +1,20 @@
+#!/bin/bash
+# Launch a URL as a Firefox "web app": its own profile, no toolbar, and a
+# window class of firefox-webapp-<host> so Hyprland and the launcher can
+# tell it apart. Drop-in replacement for omarchy-launch-webapp.
+set -e
+url=$1
+[[ -n $url ]] || { echo "usage: omarchy-firefox-webapp <url>" >&2; exit 1; }
+host=$(printf '%s' "$url" | sed -E 's#^[a-z]+://##; s#/.*$##; s#^www\.##')
+profile="$HOME/.local/share/omarchy-firefox-webapps/$host"
+template="$HOME/.config/omarchy/firefox-webapp"
+if [[ ! -d $profile ]]; then
+  mkdir -p "$profile/chrome"
+  cp "$template/user.js" "$profile/user.js"
+fi
+# Always refresh the stylesheet so template edits reach every app.
+mkdir -p "$profile/chrome"
+cp "$template/chrome/userChrome.css" "$profile/chrome/userChrome.css"
+export MOZ_ENABLE_WAYLAND=1
+exec setsid uwsm-app -- firefox --profile "$profile" --no-remote \
+  --name "firefox-webapp-$host" --new-window "$url" "${@:2}"

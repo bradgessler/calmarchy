@@ -1,0 +1,26 @@
+#!/bin/bash
+# macOS-style "show desktop": slide the current workspace's windows away onto an
+# empty workspace, and bring them back with the reverse gesture.
+#
+#   omarchy-show-desktop show    spread: reveal the desktop (or return if already there)
+#   omarchy-show-desktop hide    pinch:  return to the windows
+#   omarchy-show-desktop toggle  either direction
+
+state="${XDG_STATE_HOME:-$HOME/.local/state}/omarchy/show-desktop"
+action=${1:-toggle}
+
+read -r id windows < <(hyprctl activeworkspace -j | jq -r '"\(.id) \(.windows)"')
+saved=$(cat "$state" 2>/dev/null)
+# The workspace we came from no longer has windows, or is the one we're on: stale.
+[[ $saved == "$id" ]] && { rm -f "$state"; saved=""; }
+
+if [[ -n $saved && $windows -eq 0 ]]; then
+  rm -f "$state"
+  hyprctl dispatch "hl.dsp.focus({ workspace = $saved })" >/dev/null
+elif [[ $action == show || $action == toggle ]]; then
+  if (( windows > 0 )); then
+    mkdir -p "$(dirname "$state")"
+    printf '%s\n' "$id" >"$state"
+    hyprctl dispatch 'hl.dsp.focus({ workspace = "emptym" })' >/dev/null
+  fi
+fi

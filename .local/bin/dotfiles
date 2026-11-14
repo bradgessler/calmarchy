@@ -1,0 +1,5 @@
+#!/bin/bash
+# Git for Brad's config files, tracked in place: the repo lives in ~/.dotfiles and
+# its working tree is $HOME. Only explicitly added files are tracked.
+#   dotfiles status | dotfiles add <file> | dotfiles commit -m "..." | dotfiles log
+exec git --git-dir="$HOME/.dotfiles" --work-tree="$HOME" "$@"
