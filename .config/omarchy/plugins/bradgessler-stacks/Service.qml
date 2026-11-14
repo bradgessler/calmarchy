@@ -5,8 +5,8 @@ import Quickshell.Wayland
 import qs.Commons
 
 // Windows snapped into the same omarchy-snap panel form a stack. Each stack of
-// two or more gets a row of dots in the top bar, vertically centered and
-// horizontally centered over it; the front window's dot is brighter. Windows
+// two or more gets a row of dots in the black bottom band, vertically
+// centered and horizontally centered under it; the front window's dot is brighter. Windows
 // torn off into loose spots get no dot. Super+Tab / Alt+Tab rotate a stack.
 Item {
   id: root
@@ -75,13 +75,32 @@ Item {
       groups[key].push(w)
     }
     order.sort()
+    // Each panel's front window: the most recently focused one in it.
+    var fronts = {}
+    for (var f = 0; f < order.length; f++)
+      fronts[order[f]] = groups[order[f]].reduce(function(best, x) { return x.recency < best.recency ? x : best }, groups[order[f]][0])
+    // A stack buried under a window in front of it (a more recently focused
+    // window whose frame contains its own, like a full-screen one) is out of
+    // sight, so it shows no dots.
+    function buried(key) {
+      var a = fronts[key]
+      for (var o in fronts) {
+        if (o === key) continue
+        var b = fronts[o]
+        if (b.ws === a.ws && b.recency < a.recency
+            && b.x <= a.x + tolerance && b.y <= a.y + tolerance
+            && b.x + b.w >= a.x + a.w - tolerance && b.y + b.h >= a.y + a.h - tolerance)
+          return true
+      }
+      return false
+    }
     var out = []
     for (var k = 0; k < order.length; k++) {
       var g = groups[order[k]]
       // A lone window in a panel needs no dot; dots mean "more under here".
-      if (g.length < 2) continue
+      if (g.length < 2 || buried(order[k])) continue
       g.sort(function(p, q) { return p.address < q.address ? -1 : 1 })
-      var front = g.reduce(function(best, x) { return x.recency < best.recency ? x : best }, g[0])
+      var front = fronts[order[k]]
       out.push({
         ws: g[0].ws, centerX: g[0].x + g[0].w / 2,
         windows: g.map(function(x) { return { address: x.address, front: x.address === front.address } })
@@ -125,25 +144,19 @@ Item {
       readonly property var ipc: monitor ? monitor.lastIpcObject : null
       readonly property int workspaceId: monitor && monitor.activeWorkspace ? monitor.activeWorkspace.id : -1
       readonly property int monitorX: ipc ? ipc.x : 0
-      // The top bar's real thickness, notch floor included.
-      // The MacBook's camera notch, centered on the built-in panel (about 200pt
-      // wide at this scale). Other screens have none.
-      readonly property bool hasNotch: String(screen ? screen.name : "").indexOf("eDP") === 0
-      readonly property real notchHalf: hasNotch ? 100 : 0
-      readonly property real notchLeft: hasNotch ? width / 2 - notchHalf : -1
-      readonly property real notchRight: hasNotch ? width / 2 + notchHalf : -1
-      readonly property int barHeight: ipc && ipc.reserved ? ipc.reserved[1] : Style.bar.sizeHorizontal
+      // The bottom letterbox band's height (its reserved edge).
+      readonly property int bandHeight: ipc && ipc.reserved && ipc.reserved[3] > 0 ? ipc.reserved[3] : 32
 
-      // Drawn over the top bar, along its bottom edge. Reserves nothing and takes
-      // no input, so the bar underneath keeps working.
+      // Drawn over the black bottom band, under the stacks. Reserves nothing and
+      // takes no input.
       color: "transparent"
       WlrLayershell.namespace: "bradgessler-stacks"
       WlrLayershell.layer: WlrLayer.Overlay
       WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
       exclusionMode: ExclusionMode.Ignore
       exclusiveZone: 0
-      anchors { top: true; left: true; right: true }
-      implicitHeight: Math.max(8, barHeight)
+      anchors { bottom: true; left: true; right: true }
+      implicitHeight: Math.max(8, bandHeight)
       mask: Region {}
 
       Repeater {
@@ -154,10 +167,7 @@ Item {
           required property var modelData
           spacing: 6
           anchors.verticalCenter: parent.verticalCenter
-          // Centered over the stack, unless that puts them under the camera
-          // notch; then they sit just to its right.
-          readonly property real wantX: Math.round(modelData.centerX - strip.monitorX - width / 2)
-          x: (wantX + width > strip.notchLeft && wantX < strip.notchRight) ? strip.notchRight + 10 : wantX
+          x: Math.round(modelData.centerX - strip.monitorX - width / 2)
 
           Repeater {
             model: dots.modelData.windows
