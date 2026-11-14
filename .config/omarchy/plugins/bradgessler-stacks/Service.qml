@@ -4,7 +4,7 @@ import Quickshell.Hyprland
 import Quickshell.Wayland
 import qs.Commons
 
-// Windows that share a pane (overlap by a quarter or more) form a stack. Each
+// Windows that share a frame (intersection over union of 0.8 or more) form a stack. Each
 // stack of two or more gets a row of dots in the top bar, vertically centered
 // in it and horizontally centered over the stack. The front window's dot is brighter. Super+Tab / Alt+Tab rotate the stack.
 Item {
@@ -13,15 +13,18 @@ Item {
   property var shell: null
   property var manifest: null
 
-  readonly property real overlap: 0.25
+  readonly property real overlap: 0.8
   property var stacks: []
 
   function overlapRatio(a, b) {
     var x1 = Math.max(a.x, b.x), x2 = Math.min(a.x + a.w, b.x + b.w)
     var y1 = Math.max(a.y, b.y), y2 = Math.min(a.y + a.h, b.y + b.h)
     if (x2 <= x1 || y2 <= y1) return 0
-    var smaller = Math.min(a.w * a.h, b.w * b.h)
-    return smaller > 0 ? (x2 - x1) * (y2 - y1) / smaller : 0
+    // Intersection over union: windows stack when they share (nearly) the same
+    // frame, so a full-screen stack and a half-screen one stay separate.
+    var inter = (x2 - x1) * (y2 - y1)
+    var union = a.w * a.h + b.w * b.h - inter
+    return union > 0 ? inter / union : 0
   }
 
   function rebuild() {
@@ -102,6 +105,12 @@ Item {
       readonly property int workspaceId: monitor && monitor.activeWorkspace ? monitor.activeWorkspace.id : -1
       readonly property int monitorX: ipc ? ipc.x : 0
       // The top bar's real thickness, notch floor included.
+      // The MacBook's camera notch, centered on the built-in panel (about 200pt
+      // wide at this scale). Other screens have none.
+      readonly property bool hasNotch: String(screen ? screen.name : "").indexOf("eDP") === 0
+      readonly property real notchHalf: hasNotch ? 100 : 0
+      readonly property real notchLeft: hasNotch ? width / 2 - notchHalf : -1
+      readonly property real notchRight: hasNotch ? width / 2 + notchHalf : -1
       readonly property int barHeight: ipc && ipc.reserved ? ipc.reserved[1] : Style.bar.sizeHorizontal
 
       // Drawn over the top bar, along its bottom edge. Reserves nothing and takes
@@ -124,7 +133,10 @@ Item {
           required property var modelData
           spacing: 6
           anchors.verticalCenter: parent.verticalCenter
-          x: Math.round(modelData.centerX - strip.monitorX - width / 2)
+          // Centered over the stack, unless that puts them under the camera
+          // notch; then they sit just to its right.
+          readonly property real wantX: Math.round(modelData.centerX - strip.monitorX - width / 2)
+          x: (wantX + width > strip.notchLeft && wantX < strip.notchRight) ? strip.notchRight + 10 : wantX
 
           Repeater {
             model: dots.modelData.windows

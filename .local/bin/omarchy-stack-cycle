@@ -1,6 +1,6 @@
 #!/bin/bash
-# Rotate through the windows stacked under the active one: every window on this
-# workspace whose area mostly overlaps the active window's area. Focusing a
+# Rotate through the windows stacked with the active one: every window on this
+# workspace that occupies (nearly) the same frame. Focusing a
 # floating window raises it, so the next one in the pile comes to the front.
 # usage: omarchy-stack-cycle [next|prev]
 dir=${1:-next}
@@ -14,8 +14,10 @@ hyprctl -j clients | jq -r --arg dir "$dir" --argjson active "$(hyprctl -j activ
       | ([$a[0], $w.at[0]] | max) as $x1 | ([$a[0]+$s[0], $w.at[0]+$w.size[0]] | min) as $x2
       | ([$a[1], $w.at[1]] | max) as $y1 | ([$a[1]+$s[1], $w.at[1]+$w.size[1]] | min) as $y2
       | (if $x2 > $x1 and $y2 > $y1 then ($x2-$x1)*($y2-$y1) else 0 end) as $inter
-      | ([$s[0]*$s[1], $w.size[0]*$w.size[1]] | min) as $smaller
-      | select($smaller > 0 and $inter / $smaller >= 0.25)
+      # Same frame: intersection over union, so a full-screen window and a
+      # half-screen one under it stay separate stacks.
+      | ($s[0]*$s[1] + $w.size[0]*$w.size[1] - $inter) as $union
+      | select($union > 0 and $inter / $union >= 0.8)
       | .address ]
   | sort
   | if length < 2 then empty else
