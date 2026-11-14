@@ -106,6 +106,9 @@
   "plugins": [
     {
       "id": "bradgessler.stacks"
+    },
+    {
+      "id": "bradgessler.letterbox"
     }
   ],
   "version": 1

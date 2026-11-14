@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "bradgessler.letterbox",
+  "name": "Letterbox",
+  "version": "1.0.0",
+  "author": "Brad Gessler",
+  "description": "A black band along the bottom edge that matches the top bar, so the wallpaper sits letterboxed between them.",
+  "kinds": ["service"],
+  "entryPoints": { "service": "Service.qml" }
+}
