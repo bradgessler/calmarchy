@@ -31,32 +31,26 @@
 -- scrolling or floating mode by accident. Super+Alt+L still cycles if wanted.
 hl.unbind("SUPER + L")
 
--- Rectangle.app-style window snapping (Ctrl+Alt, like Rectangle's Ctrl+Option).
+-- Panels (Ctrl+Alt, like Rectangle's Ctrl+Option): halves, quarters, and full.
 o.bind("CTRL + ALT + LEFT", "Snap window left half", "omarchy-snap left")
 o.bind("CTRL + ALT + RIGHT", "Snap window right half", "omarchy-snap right")
 o.bind("CTRL + ALT + UP", "Snap window top half", "omarchy-snap top")
 o.bind("CTRL + ALT + DOWN", "Snap window bottom half", "omarchy-snap bottom")
 o.bind("CTRL + ALT + RETURN", "Maximize window", "omarchy-snap full")
-o.bind("CTRL + ALT + C", "Center window", "omarchy-snap center")
 o.bind("CTRL + ALT + U", "Snap window top left", "omarchy-snap tl")
 o.bind("CTRL + ALT + I", "Snap window top right", "omarchy-snap tr")
 o.bind("CTRL + ALT + J", "Snap window bottom left", "omarchy-snap bl")
 o.bind("CTRL + ALT + K", "Snap window bottom right", "omarchy-snap br")
-o.bind("CTRL + ALT + D", "Snap window first third", "omarchy-snap third-left")
-o.bind("CTRL + ALT + F", "Snap window center third", "omarchy-snap third-center")
-o.bind("CTRL + ALT + G", "Snap window last third", "omarchy-snap third-right")
-o.bind("CTRL + ALT + E", "Snap window first two thirds", "omarchy-snap two-thirds-left")
-o.bind("CTRL + ALT + T", "Snap window last two thirds", "omarchy-snap two-thirds-right")
 
 -- Windows snapped to the same spot form a stack; Super+` rotates through it,
 -- like Cmd+` cycling an app's windows on macOS.
 o.bind("SUPER + GRAVE", "Cycle windows stacked here", "omarchy-stack-cycle next")
 o.bind("SUPER + SHIFT + GRAVE", "Cycle windows stacked here (reverse)", "omarchy-stack-cycle prev")
 
--- Dropping a dragged window mostly on top of another snaps it to that window's
--- frame, so the two stack in the same pane. The drag itself is unchanged.
+-- Windows only live in panels: a dragged window lands in one when released
+-- (onto another window = its stack, top edge = full, else the half under the pointer).
 hl.unbind("SUPER + mouse:272")
-o.bind_hold("SUPER + mouse:272", "Move window", hl.dsp.window.drag(), "Stack dropped window", "omarchy-stack-join")
+o.bind_hold("SUPER + mouse:272", "Move window", hl.dsp.window.drag(), "Land dropped window in a panel", "omarchy-panel-drop")
 
 -- Super+Tab like Cmd+Tab: rotate the stack under the active window, or cycle
 -- the workspace's windows when it isn't stacked. (Was: next/previous workspace.)
@@ -77,3 +71,11 @@ o.rebind("ALT + SHIFT + TAB", "Cycle stack or windows (reverse)", "omarchy-windo
 
 -- Super+N like Cmd+N: a new window of the focused app.
 o.bind("SUPER + N", "New window of the focused app", "omarchy-new-window")
+
+-- Every new window opens in the panel of the window you were just in, on top
+-- of its stack (full on an empty workspace). Dialogs are left alone.
+hl.on("window.open", function(window)
+  if window and window.address then
+    hl.exec_cmd("omarchy-panel-place " .. window.address)
+  end
+end)

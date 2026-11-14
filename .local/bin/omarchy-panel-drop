@@ -1,0 +1,36 @@
+#!/bin/bash
+# Run when a Super+drag ends: windows only live in panels, so land the dragged
+# window in one. Dropped mostly onto another window, it joins that stack;
+# released near the top edge, it goes full; otherwise it takes the left or
+# right half under the pointer.
+win=$(hyprctl -j activewindow)
+addr=$(jq -r '.address // empty' <<<"$win")
+[[ -n $addr && $(jq -r '.floating' <<<"$win") == true ]] || exit 0
+jq -e '(.tags // []) | any(startswith("omarchy-mode-opened"))' <<<"$win" >/dev/null || exit 0
+
+other=$(hyprctl -j clients | jq -r --argjson a "$win" '
+  ($a.at) as $at | ($a.size) as $s
+  | [ .[]
+      | select(.mapped and .address != $a.address and .workspace.id == $a.workspace.id and (.hidden | not))
+      | . as $w
+      | ([$at[0], $w.at[0]] | max) as $x1 | ([$at[0]+$s[0], $w.at[0]+$w.size[0]] | min) as $x2
+      | ([$at[1], $w.at[1]] | max) as $y1 | ([$at[1]+$s[1], $w.at[1]+$w.size[1]] | min) as $y2
+      | (if $x2 > $x1 and $y2 > $y1 then ($x2-$x1)*($y2-$y1) else 0 end) as $inter
+      | ([$s[0]*$s[1], $w.size[0]*$w.size[1]] | min) as $smaller
+      | select($smaller > 0) | {ratio: ($inter / $smaller), addr: $w.address} ]
+  | sort_by(-.ratio) | .[0] // empty | select(.ratio >= 0.4) | .addr')
+if [[ -n $other ]]; then
+  panel=$(omarchy-snap --frame-of "$other")
+  [[ -n $panel ]] && { omarchy-snap "$panel" "$addr"; exit 0; }
+fi
+
+read -r cx cy < <(hyprctl cursorpos | tr -d ',')
+read -r mx my mw mh < <(hyprctl -j monitors | jq -r --argjson id "$(jq '.monitor' <<<"$win")" \
+  '.[] | select(.id == $id) | "\(.x) \(.y) \(.width / .scale | floor) \(.height / .scale | floor)"')
+if (( cy - my < mh / 8 )); then
+  omarchy-snap full "$addr"
+elif (( cx - mx < mw / 2 )); then
+  omarchy-snap left "$addr"
+else
+  omarchy-snap right "$addr"
+fi

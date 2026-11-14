@@ -1,11 +1,9 @@
 #!/bin/bash
-# Cmd+N: open a new window of whatever app is focused, placed exactly over the
-# focused window so it lands on top of (and joins) that window's stack.
+# Cmd+N: open a new window of whatever app is focused. omarchy-panel-place puts
+# it on top of the focused window's stack as it opens.
 win=$(hyprctl -j activewindow)
 class=$(jq -r '.class // empty' <<<"$win")
 pid=$(jq -r '.pid // empty' <<<"$win")
-read -r fx fy fw fh < <(jq -r 'if .address then "\(.at[0]) \(.at[1]) \(.size[0]) \(.size[1])" else "" end' <<<"$win")
-before=$(hyprctl -j clients | jq -r '.[].address' | sort)
 
 start() { setsid "$@" >/dev/null 2>&1 < /dev/null & }
 
@@ -45,16 +43,3 @@ case "$class" in
     fi
     ;;
 esac
-
-# Nothing was focused: nowhere to put it.
-[[ -n $fw ]] || exit 0
-
-# Wait for the new window, then give it the old window's frame.
-for _ in $(seq 1 50); do
-  sleep 0.1
-  new=$(comm -13 <(echo "$before") <(hyprctl -j clients | jq -r '.[].address' | sort) | head -1)
-  [[ -n $new ]] && break
-done
-[[ -n $new ]] || exit 0
-sleep 0.15
-hyprctl --batch "dispatch hl.dsp.focus({ window = \"address:$new\" }); dispatch hl.dsp.window.resize({ x = $fw, y = $fh, exact = true }); dispatch hl.dsp.window.move({ x = $fx, y = $fy, relative = false }); dispatch hl.dsp.window.bring_to_top()" >/dev/null

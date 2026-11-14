@@ -1,48 +1,56 @@
 #!/bin/bash
-# Rectangle.app-style snapping for floating windows.
-# usage: omarchy-snap left|right|top|bottom|full|center|tl|tr|bl|br
-#                     third-left|third-center|third-right|two-thirds-left|two-thirds-right
-pos=${1:?usage: omarchy-snap <position>}
+# Panels: every window lives in one of these frames on its monitor.
+#   omarchy-snap <panel> [address]   put a window (default: the active one) in a panel
+#   omarchy-snap --frame-of <address>  print the panel a window sits in, or nothing
+# Panels: full left right top bottom tl tr bl br
 gap=${OMARCHY_SNAP_GAP:-8}
+tolerance=6
 
-read -r mx my mw mh scale rl rt rr rb < <(hyprctl monitors -j | jq -r '.[] | select(.focused) | [.x,.y,.width,.height,.scale,.reserved[0],.reserved[1],.reserved[2],.reserved[3]] | @tsv')
-bar=0
-if [[ $(hyprctl getoption plugin:hyprbars:enabled -j 2>/dev/null | jq -r '.int // 0') == 1 ]]; then
-  bar=$(hyprctl getoption plugin:hyprbars:bar_height -j 2>/dev/null | jq -r '.int // 0')
+frame() { # frame <panel> <monitor-id> -> "x y w h"
+  hyprctl -j monitors | jq -r --arg pos "$1" --argjson mid "$2" --argjson gap "$gap" '
+    .[] | select(.id == $mid)
+    | (.x + .reserved[0] + $gap) as $ax | (.y + .reserved[1] + $gap) as $ay
+    | (.width / .scale - .reserved[0] - .reserved[2] - 2 * $gap) as $aw
+    | (.height / .scale - .reserved[1] - .reserved[3] - 2 * $gap) as $ah
+    | (($aw - $gap) / 2) as $cw | (($ah - $gap) / 2) as $ch
+    | { full:   [$ax, $ay, $aw, $ah],
+        left:   [$ax, $ay, $cw, $ah],            right:  [$ax + $cw + $gap, $ay, $cw, $ah],
+        top:    [$ax, $ay, $aw, $ch],            bottom: [$ax, $ay + $ch + $gap, $aw, $ch],
+        tl:     [$ax, $ay, $cw, $ch],            tr:     [$ax + $cw + $gap, $ay, $cw, $ch],
+        bl:     [$ax, $ay + $ch + $gap, $cw, $ch], br:   [$ax + $cw + $gap, $ay + $ch + $gap, $cw, $ch]
+      }[$pos] // empty | map(floor) | join(" ")'
+}
+
+if [[ $1 == --frame-of ]]; then
+  win=$(hyprctl -j clients | jq -c --arg a "$2" '.[] | select(.address == $a)')
+  [[ -n $win ]] || exit 1
+  read -r mid x y w h < <(jq -r '"\(.monitor) \(.at[0]) \(.at[1]) \(.size[0]) \(.size[1])"' <<<"$win")
+  for p in full left right top bottom tl tr bl br; do
+    read -r fx fy fw fh < <(frame "$p" "$mid")
+    if (( ${x#-}-fx <= tolerance && fx-x <= tolerance && y-fy <= tolerance && fy-y <= tolerance \
+       && w-fw <= tolerance && fw-w <= tolerance && h-fh <= tolerance && fh-h <= tolerance )); then
+      echo "$p"; exit 0
+    fi
+  done
+  exit 1
 fi
 
-read -r x y w h < <(awk -v pos="$pos" -v mx="$mx" -v my="$my" -v mw="$mw" -v mh="$mh" -v s="$scale" \
-  -v rl="$rl" -v rt="$rt" -v rr="$rr" -v rb="$rb" -v gap="$gap" -v bar="$bar" 'BEGIN {
-  ax = mx + rl + gap; ay = my + rt + gap
-  aw = mw / s - rl - rr - 2 * gap; ah = mh / s - rt - rb - 2 * gap
-  cw = (aw - gap) / 2; ch = (ah - gap) / 2; tw = (aw - 2 * gap) / 3
-  x = ax; y = ay; w = aw; h = ah
-  if      (pos == "left")            { w = cw }
-  else if (pos == "right")           { x = ax + cw + gap; w = cw }
-  else if (pos == "top")             { h = ch }
-  else if (pos == "bottom")          { y = ay + ch + gap; h = ch }
-  else if (pos == "tl")              { w = cw; h = ch }
-  else if (pos == "tr")              { x = ax + cw + gap; w = cw; h = ch }
-  else if (pos == "bl")              { y = ay + ch + gap; w = cw; h = ch }
-  else if (pos == "br")              { x = ax + cw + gap; y = ay + ch + gap; w = cw; h = ch }
-  else if (pos == "third-left")      { w = tw }
-  else if (pos == "third-center")    { x = ax + tw + gap; w = tw }
-  else if (pos == "third-right")     { x = ax + 2 * (tw + gap); w = tw }
-  else if (pos == "two-thirds-left") { w = 2 * tw + gap }
-  else if (pos == "two-thirds-right"){ x = ax + tw + gap; w = 2 * tw + gap }
-  else if (pos == "center")          { w = aw * 0.6; h = ah * 0.7; x = ax + (aw - w) / 2; y = ay + (ah - h) / 2 }
-  else if (pos != "full")            { exit 2 }
-  # The title bar is drawn above the client area, so leave room for it.
-  y += bar; h -= bar
-  printf "%d %d %d %d\n", x, y, w, h
-}') || { echo "omarchy-snap: unknown position '$pos'" >&2; exit 2; }
+pos=${1:?usage: omarchy-snap <full|left|right|top|bottom|tl|tr|bl|br> [address]}
+if [[ -n $2 ]]; then
+  win=$(hyprctl -j clients | jq -c --arg a "$2" '.[] | select(.address == $a)')
+else
+  win=$(hyprctl -j activewindow)
+fi
+addr=$(jq -r '.address // empty' <<<"$win")
+[[ -n $addr ]] || exit 0
+mid=$(jq -r '.monitor' <<<"$win")
+read -r x y w h < <(frame "$pos" "$mid")
+[[ -n $w ]] || { echo "omarchy-snap: unknown panel '$pos'" >&2; exit 2; }
 
-win=$(hyprctl activewindow -j)
-[[ $(jq -r '.address // empty' <<<"$win") ]] || exit 0
-if [[ $(jq -r '.fullscreen' <<<"$win") != 0 ]]; then
-  hyprctl dispatch 'hl.dsp.window.fullscreen({ action = "toggle" })' >/dev/null
-fi
-if [[ $(jq -r '.floating' <<<"$win") == false ]]; then
-  hyprctl dispatch 'hl.dsp.window.float({ action = "toggle" })' >/dev/null
-fi
-hyprctl --batch "dispatch hl.dsp.window.resize({ x = $w, y = $h, exact = true }); dispatch hl.dsp.window.move({ x = $x, y = $y, relative = false })" >/dev/null
+target="window = \"address:$addr\""
+cmds=()
+[[ $(jq -r '.fullscreen' <<<"$win") != 0 ]] && cmds+=("dispatch hl.dsp.window.fullscreen({ action = \"unset\", $target })")
+[[ $(jq -r '.floating' <<<"$win") == false ]] && cmds+=("dispatch hl.dsp.window.float({ action = \"enable\", $target })")
+cmds+=("dispatch hl.dsp.window.resize({ x = $w, y = $h, exact = true, $target })")
+cmds+=("dispatch hl.dsp.window.move({ x = $x, y = $y, relative = false, $target })")
+IFS=';'; hyprctl --batch "${cmds[*]}" >/dev/null

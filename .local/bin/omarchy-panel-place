@@ -1,0 +1,22 @@
+#!/bin/bash
+# Run when a window opens: put it in the panel of the window you were just in,
+# on top of that stack, or full if the workspace was empty. Dialogs and apps
+# that float on their own account (no omarchy-mode-opened tag) are left alone.
+addr=${1:?usage: omarchy-panel-place <address>}
+[[ $addr == 0x* ]] || addr="0x$addr"
+sleep 0.2
+clients=$(hyprctl -j clients)
+win=$(jq -c --arg a "$addr" '.[] | select(.address == $a)' <<<"$clients")
+[[ -n $win ]] || exit 0
+jq -e '(.tags // []) | any(startswith("omarchy-mode-opened"))' <<<"$win" >/dev/null || exit 0
+[[ $(jq -r '.fullscreen' <<<"$win") == 0 ]] || exit 0
+
+prev=$(jq -r --argjson w "$win" '
+  [ .[] | select(.address != $w.address and .workspace.id == $w.workspace.id and .mapped and (.hidden | not)) ]
+  | sort_by(.focusHistoryID) | .[0].address // empty' <<<"$clients")
+panel=full
+if [[ -n $prev ]]; then
+  panel=$(omarchy-snap --frame-of "$prev") || panel=full
+fi
+omarchy-snap "$panel" "$addr"
+hyprctl --batch "dispatch hl.dsp.focus({ window = \"address:$addr\" }); dispatch hl.dsp.window.bring_to_top()" >/dev/null

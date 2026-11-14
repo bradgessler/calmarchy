@@ -4,66 +4,87 @@ import Quickshell.Hyprland
 import Quickshell.Wayland
 import qs.Commons
 
-// Windows that share a frame (intersection over union of 0.8 or more) form a stack. Each
-// stack of two or more gets a row of dots in the top bar, vertically centered
-// in it and horizontally centered over the stack. The front window's dot is brighter. Super+Tab / Alt+Tab rotate the stack.
+// Windows snapped into the same omarchy-snap panel form a stack. Each stack of
+// two or more gets a row of dots in the top bar, vertically centered and
+// horizontally centered over it; the front window's dot is brighter. Windows
+// torn off into loose spots get no dot. Super+Tab / Alt+Tab rotate a stack.
 Item {
   id: root
 
   property var shell: null
   property var manifest: null
 
-  readonly property real overlap: 0.8
+  // Must match omarchy-snap: the gap around and between snapped windows, and
+  // how far off a frame a window can sit and still count as snapped there.
+  readonly property int gap: 8
+  readonly property int tolerance: 6
   property var stacks: []
 
-  function overlapRatio(a, b) {
-    var x1 = Math.max(a.x, b.x), x2 = Math.min(a.x + a.w, b.x + b.w)
-    var y1 = Math.max(a.y, b.y), y2 = Math.min(a.y + a.h, b.y + b.h)
-    if (x2 <= x1 || y2 <= y1) return 0
-    // Intersection over union: windows stack when they share (nearly) the same
-    // frame, so a full-screen stack and a half-screen one stay separate.
-    var inter = (x2 - x1) * (y2 - y1)
-    var union = a.w * a.h + b.w * b.h - inter
-    return union > 0 ? inter / union : 0
+  // Every frame omarchy-snap can put a window in, for one monitor.
+  function framesFor(m) {
+    var r = m.reserved || [0, 0, 0, 0]
+    var ax = m.x + r[0] + gap, ay = m.y + r[1] + gap
+    var aw = m.width / m.scale - r[0] - r[2] - 2 * gap
+    var ah = m.height / m.scale - r[1] - r[3] - 2 * gap
+    var cw = (aw - gap) / 2, ch = (ah - gap) / 2, tw = (aw - 2 * gap) / 3
+    function f(name, x, y, w, h) { return { name: name, x: Math.floor(x), y: Math.floor(y), w: Math.floor(w), h: Math.floor(h) } }
+    return [
+      f("full", ax, ay, aw, ah),
+      f("left", ax, ay, cw, ah), f("right", ax + cw + gap, ay, cw, ah),
+      f("top", ax, ay, aw, ch), f("bottom", ax, ay + ch + gap, aw, ch),
+      f("tl", ax, ay, cw, ch), f("tr", ax + cw + gap, ay, cw, ch),
+      f("bl", ax, ay + ch + gap, cw, ch), f("br", ax + cw + gap, ay + ch + gap, cw, ch)
+    ]
   }
 
+  function frameOf(w, frames) {
+    for (var i = 0; i < frames.length; i++) {
+      var fr = frames[i]
+      if (Math.abs(w.x - fr.x) <= tolerance && Math.abs(w.y - fr.y) <= tolerance
+          && Math.abs(w.w - fr.w) <= tolerance && Math.abs(w.h - fr.h) <= tolerance)
+        return fr.name
+    }
+    return ""
+  }
+
+  // A window snapped into a panel is docked there; stacks of 2+ get dots.
   function rebuild() {
-    var wins = []
+    var framesByMonitor = {}
+    var monitors = Hyprland.monitors.values
+    for (var m = 0; m < monitors.length; m++) {
+      var mi = monitors[m].lastIpcObject
+      if (mi && mi.width) framesByMonitor[mi.id] = framesFor(mi)
+    }
+    var groups = {}, order = []
     var toplevels = Hyprland.toplevels.values
     for (var i = 0; i < toplevels.length; i++) {
       var ipc = toplevels[i].lastIpcObject
       if (!ipc || !ipc.at || !ipc.size || !ipc.mapped || ipc.hidden || !ipc.workspace) continue
-      if (ipc.workspace.id < 1) continue
-      wins.push({
-        address: String(ipc.address), ws: ipc.workspace.id, monitor: ipc.monitor,
+      if (ipc.workspace.id < 1 || ipc.fullscreen) continue
+      var frames = framesByMonitor[ipc.monitor]
+      if (!frames) continue
+      var w = {
+        address: String(ipc.address), ws: ipc.workspace.id,
         x: ipc.at[0], y: ipc.at[1], w: ipc.size[0], h: ipc.size[1],
         recency: ipc.focusHistoryID === undefined ? 9999 : ipc.focusHistoryID
-      })
+      }
+      var frame = frameOf(w, frames)
+      if (!frame) continue
+      var key = w.ws + ":" + ipc.monitor + ":" + frame
+      if (!groups[key]) { groups[key] = []; order.push(key) }
+      groups[key].push(w)
     }
-    // Union windows on the same workspace that overlap enough.
-    var parent = wins.map(function(_, k) { return k })
-    function find(k) { while (parent[k] !== k) k = parent[k] = parent[parent[k]]; return k }
-    for (var a = 0; a < wins.length; a++)
-      for (var b = a + 1; b < wins.length; b++)
-        if (wins[a].ws === wins[b].ws && overlapRatio(wins[a], wins[b]) >= root.overlap)
-          parent[find(a)] = find(b)
-    var groups = {}
-    for (var n = 0; n < wins.length; n++) {
-      var r = find(n)
-      if (!groups[r]) groups[r] = []
-      groups[r].push(wins[n])
-    }
+    order.sort()
     var out = []
-    for (var key in groups) {
-      var g = groups[key]
+    for (var k = 0; k < order.length; k++) {
+      var g = groups[order[k]]
+      // A lone window in a panel needs no dot; dots mean "more under here".
       if (g.length < 2) continue
       g.sort(function(p, q) { return p.address < q.address ? -1 : 1 })
-      var front = g.reduce(function(best, w) { return w.recency < best.recency ? w : best }, g[0])
-      var left = Infinity, right = -Infinity
-      g.forEach(function(w) { left = Math.min(left, w.x); right = Math.max(right, w.x + w.w) })
+      var front = g.reduce(function(best, x) { return x.recency < best.recency ? x : best }, g[0])
       out.push({
-        ws: g[0].ws, centerX: (left + right) / 2,
-        windows: g.map(function(w) { return { address: w.address, front: w.address === front.address } })
+        ws: g[0].ws, centerX: g[0].x + g[0].w / 2,
+        windows: g.map(function(x) { return { address: x.address, front: x.address === front.address } })
       })
     }
     var json = JSON.stringify(out)
