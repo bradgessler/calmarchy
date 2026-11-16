@@ -13,6 +13,10 @@ BarWidget {
   moduleName: "omarchy.tray"
 
   property bool expanded: false
+  // Headless: mounted so the status panels (audio, network, power...) still
+  // have a live bar widget to open from, but takes no room and never shows an
+  // icon. The Super+Space menu is where status is read and panels are opened.
+  readonly property bool headless: settings.headless === true
   property bool managePopupOpen: false
   property bool trayMenuOpen: false
   property var activeTrayItem: null
@@ -49,7 +53,7 @@ BarWidget {
   readonly property Item openPanelIndicatorItem: trayMenuOpen ? activeTrayAnchor : null
   // Match Waybar's group/tray-expander drawer transition-duration.
   readonly property int animationDuration: 600
-  property real revealProgress: expanded || holdOpen ? 1 : 0
+  property real revealProgress: !headless && (expanded || holdOpen) ? 1 : 0
   readonly property real revealExtent: drawerExtent * revealProgress
   // The pinned icons sit against the tray's fixed edge with the chevron past
   // them. Opening, the drawer grows the tray between the two and pushes the
@@ -269,10 +273,11 @@ BarWidget {
     Item {
       id: horizontalTrayRoot
 
-      readonly property int chevronWidth: root.hasDrawer ? expandIcon.implicitWidth : 0
+      readonly property int chevronWidth: root.hasDrawer && !root.headless ? expandIcon.implicitWidth : 0
       readonly property var sectionShown: root.shownSection(drawerArea.x + trayClip.x, trayClip.width, drawerArea.x + trayClip.x + drawerContent.x + section.x, section.width)
 
-      implicitWidth: pinnedRow.implicitWidth + chevronWidth + root.revealExtent
+      implicitWidth: root.headless ? 0 : pinnedRow.implicitWidth + chevronWidth + root.revealExtent
+      opacity: root.headless ? 0 : 1
       implicitHeight: root.barSize
 
       Item {

@@ -15,6 +15,10 @@
       ],
       "right": [
         {
+          "id": "bradgessler.tray",
+          "headless": true
+        },
+        {
           "format": "dddd HH:mm",
           "formatAlt": "d MMMM 'W'ww yyyy",
           "id": "omarchy.clock",
