@@ -1,6 +1,17 @@
 #!/bin/bash
 # Cmd+N: open a new window of whatever app is focused. omarchy-panel-place puts
 # it on top of the focused window's stack as it opens.
+# With --full (Cmd+Shift+N) the new window fills the workspace instead.
+# Aim the panel-open rule at the focused window's frame right now, rather than
+# trusting it to have kept up with focus changes.
+hyprctl eval "panel_open_sync()" >/dev/null 2>&1
+if [[ $1 == --full ]]; then
+  read -r x y w h < <(omarchy-snap --frame full)
+  if [[ -n $w ]]; then
+    touch "${XDG_RUNTIME_DIR:-/tmp}/omarchy-place-full"
+    hyprctl eval "hl.window_rule({ name = \"panel-open\", enabled = true, match = { tag = \"omarchy-mode-opened\" }, size = \"$w $h\", move = \"$x $y\" })" >/dev/null
+  fi
+fi
 win=$(hyprctl -j activewindow)
 class=$(jq -r '.class // empty' <<<"$win")
 pid=$(jq -r '.pid // empty' <<<"$win")

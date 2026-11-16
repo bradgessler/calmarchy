@@ -71,6 +71,8 @@ o.rebind("ALT + SHIFT + TAB", "Cycle stack or windows (reverse)", "omarchy-windo
 
 -- Super+N like Cmd+N: a new window of the focused app.
 o.bind("SUPER + N", "New window of the focused app", "omarchy-new-window")
+-- Cmd+Shift+N: the same, filling the workspace. (Replaces Omarchy's Editor key.)
+o.rebind("SUPER + SHIFT + N", "New full window of the focused app", "omarchy-new-window --full")
 
 -- Every new window opens in the panel of the window you were just in, on top
 -- of its stack (full on an empty workspace). Dialogs are left alone.
@@ -79,3 +81,28 @@ hl.on("window.open", function(window)
     hl.exec_cmd("omarchy-panel-place " .. window.address)
   end
 end)
+
+-- So it appears there instead of sliding over from the middle: a rule keeps
+-- the focused window's frame, and windows the floating mode opens take that
+-- size and spot from their first frame. omarchy-panel-place still settles any
+-- case this misses (empty workspace, a window off the panel grid).
+-- omarchy-snap calls panel_open_sync() after it moves a window.
+function panel_open_sync()
+  local a = hl.get_active_window()
+  if not a or not a.floating or (a.fullscreen or 0) ~= 0 then
+    hl.window_rule({ name = "panel-open", enabled = false })
+    return
+  end
+  hl.window_rule({
+    name = "panel-open",
+    enabled = true,
+    match = { tag = "omarchy-mode-opened" },
+    size = string.format("%d %d", a.size.x, a.size.y),
+    move = string.format("%d %d", a.at.x, a.at.y),
+  })
+end
+hl.on("window.active", function() panel_open_sync() end)
+-- Apps that remember being maximized (Firefox) would otherwise open
+-- maximized and skip the panel.
+hl.window_rule({ name = "panel-open-nomax", match = { tag = "omarchy-mode-opened" }, suppress_event = "maximize" })
+panel_open_sync()

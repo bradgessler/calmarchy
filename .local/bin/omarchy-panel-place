@@ -15,7 +15,10 @@ prev=$(jq -r --argjson w "$win" '
   [ .[] | select(.address != $w.address and .workspace.id == $w.workspace.id and .mapped and (.hidden | not)) ]
   | sort_by(.focusHistoryID) | .[0].address // empty' <<<"$clients")
 panel=full
-if [[ -n $prev ]]; then
+marker="${XDG_RUNTIME_DIR:-/tmp}/omarchy-place-full"
+if [[ -n $(find "$marker" -newermt '-10 seconds' 2>/dev/null) ]]; then
+  rm -f "$marker"   # Cmd+Shift+N asked for a full window
+elif [[ -n $prev ]]; then
   panel=$(omarchy-snap --frame-of "$prev") || panel=full
 fi
 omarchy-snap "$panel" "$addr"

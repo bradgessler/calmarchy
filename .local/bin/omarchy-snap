@@ -2,6 +2,7 @@
 # Panels: every window lives in one of these frames on its monitor.
 #   omarchy-snap <panel> [address]   put a window (default: the active one) in a panel
 #   omarchy-snap --frame-of <address>  print the panel a window sits in, or nothing
+#   omarchy-snap --frame <panel>       print a panel's "x y w h" on the focused monitor
 # Panels: full left right top bottom tl tr bl br
 gap=${OMARCHY_SNAP_GAP:-8}
 tolerance=6
@@ -20,6 +21,10 @@ frame() { # frame <panel> <monitor-id> -> "x y w h"
         bl:     [$ax, $ay + $ch + $gap, $cw, $ch], br:   [$ax + $cw + $gap, $ay + $ch + $gap, $cw, $ch]
       }[$pos] // empty | map(floor) | join(" ")'
 }
+
+if [[ $1 == --frame ]]; then
+  frame "${2:?panel}" "$(hyprctl -j activeworkspace | jq -r '.monitorID')"; exit
+fi
 
 if [[ $1 == --frame-of ]]; then
   win=$(hyprctl -j clients | jq -c --arg a "$2" '.[] | select(.address == $a)')
@@ -54,3 +59,4 @@ cmds=()
 cmds+=("dispatch hl.dsp.window.resize({ x = $w, y = $h, exact = true, $target })")
 cmds+=("dispatch hl.dsp.window.move({ x = $x, y = $y, relative = false, $target })")
 IFS=';'; hyprctl --batch "${cmds[*]}" >/dev/null
+hyprctl eval "panel_open_sync()" >/dev/null 2>&1
