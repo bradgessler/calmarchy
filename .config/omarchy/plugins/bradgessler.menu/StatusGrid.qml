@@ -22,7 +22,7 @@ Item {
   property int radius: 0
   signal activated(string command)
 
-  property int rowHeight: Style.space(50)
+  property int rowHeight: Style.space(44)
   property int rowSpacing: Style.spacing.xs
 
   implicitHeight: tiles.length * rowHeight + (tiles.length - 1) * rowSpacing
@@ -193,7 +193,7 @@ Item {
           color: root.foreground
           opacity: tile.modelData.dim ? 0.45 : 1
           font.family: root.fontFamily
-          font.pixelSize: Style.font.iconLarge
+          font.pixelSize: Style.font.heading
         }
 
         Text {
@@ -204,7 +204,7 @@ Item {
           text: tile.modelData.label
           color: root.foreground
           font.family: root.fontFamily
-          font.pixelSize: Style.font.heading
+          font.pixelSize: Style.font.title
           font.weight: Font.Medium
         }
 
@@ -219,7 +219,7 @@ Item {
           color: root.foreground
           opacity: tile.modelData.dim ? 0.4 : 0.6
           font.family: root.fontFamily
-          font.pixelSize: Style.font.heading
+          font.pixelSize: Style.font.title
           elide: Text.ElideRight
         }
 

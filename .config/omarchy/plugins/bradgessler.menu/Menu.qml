@@ -126,8 +126,8 @@ Item {
   property int contentMargin: Style.spacing.panelPadding
   property int headerHeight: Math.max(Style.space(34), Style.font.title + Style.spacing.controlPaddingY * 2)
   property int contentSpacing: Style.spacing.md
-  property int baseRowHeight: Math.max(Style.space(50), Style.font.body + Style.spacing.rowPaddingX * 2)
-  property int detailRowHeight: Math.max(Style.space(58), Style.font.body + Style.font.caption + Style.spacing.rowPaddingX * 2)
+  property int baseRowHeight: Math.max(Style.space(44), Style.font.body + Style.spacing.rowPaddingX * 2)
+  property int detailRowHeight: Math.max(Style.space(52), Style.font.body + Style.font.caption + Style.spacing.rowPaddingX * 2)
   // How much of the first hidden row stays visible at the fold — enough to
   // read as a cut-off row rather than a bottom border.
   property int rowPeek: Math.round(baseRowHeight * 0.55)
@@ -1301,8 +1301,12 @@ Item {
     onShownChanged: if (!shown) { cardTop = -1; maxRowsHeight = -1 }
     onTargetScreenChanged: { cardTop = -1; maxRowsHeight = -1 }
 
+    // The black notch bar and the black dot band read as part of the
+    // hardware, so the dimming stops short of both.
     Rectangle {
       anchors.fill: parent
+      anchors.topMargin: 32
+      anchors.bottomMargin: 32
       color: root.scrim
     }
 
@@ -1417,7 +1421,7 @@ Item {
             readOnly: root.deleteConfirmOpen
             color: root.foreground
             font.family: root.fontFamily
-            font.pixelSize: Style.font.heading
+            font.pixelSize: Style.font.title
             onTextChanged: if (text !== root.filterText) root.setFilter(text)
           }
 
@@ -1430,7 +1434,7 @@ Item {
             color: root.foreground
             opacity: 0.58
             font.family: root.fontFamily
-            font.pixelSize: Style.font.heading
+            font.pixelSize: Style.font.title
             elide: Text.ElideRight
           }
 
@@ -1526,7 +1530,7 @@ Item {
                 text: row.icon
                 color: row.hasCursor ? root.selectedText : root.foreground
                 font.family: row.iconFont.length > 0 ? row.iconFont : root.fontFamily
-                font.pixelSize: Style.font.iconLarge
+                font.pixelSize: Style.font.heading
                 width: Style.space(36)
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter
@@ -1538,8 +1542,8 @@ Item {
               Image {
                 id: appIconImage
                 visible: row.isApp
-                width: Style.font.iconLarge
-                height: Style.font.iconLarge
+                width: Style.font.heading
+                height: Style.font.heading
                 fillMode: Image.PreserveAspectFit
                 // Decode at physical pixels — a logical-size decode leaves
                 // PNG icons upscaled and blurry on HiDPI displays.
@@ -1568,7 +1572,7 @@ Item {
                   text: row.label
                   color: row.hasCursor ? root.selectedText : root.foreground
                   font.family: root.fontFamily
-                  font.pixelSize: Style.font.heading
+                  font.pixelSize: Style.font.title
                   font.weight: Font.Medium
                   elide: Text.ElideRight
                 }
@@ -1612,7 +1616,7 @@ Item {
                   color: row.hasCursor ? root.selectedText : root.foreground
                   opacity: row.kind === "menu" || row.kind === "link" ? 0.36 : 0
                   font.family: root.fontFamily
-                  font.pixelSize: Style.font.heading
+                  font.pixelSize: Style.font.title
                   font.weight: Font.Normal
                   anchors.verticalCenter: parent.verticalCenter
                 }
