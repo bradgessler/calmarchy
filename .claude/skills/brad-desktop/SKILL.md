@@ -97,6 +97,7 @@ grim -g "0,0 400x32" bar.png
 - `pkill -f` from the Bash tool kills its own shell; use `pkill -x` or hyprctl close.
 - `hyprctl clients` order isn't z-order; use `focusHistoryID` (0 = front).
 - Never edit `/usr/share/omarchy/`; clone plugins with `omarchy plugin clone`.
+- Firefox scale: `layout.css.devPixelsPerPx` 1.75 in user.js (profile + firefox-webapp template) matches his 13" MacBook; needs a Firefox restart.
 
 More history and preferences are in memory: `omarchy-customizations-made.md`
 and `user-omarchy-setup-preferences.md` under ~/.claude/projects/-home-bradgessler/memory/.
