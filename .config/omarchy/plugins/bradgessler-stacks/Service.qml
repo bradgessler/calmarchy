@@ -147,8 +147,9 @@ Item {
       // The bottom letterbox band's height (its reserved edge).
       readonly property int bandHeight: ipc && ipc.reserved && ipc.reserved[3] > 0 ? ipc.reserved[3] : 32
 
-      // Drawn over the black bottom band, under the stacks. Reserves nothing and
-      // takes no input.
+      // Drawn over the black bottom band, under the stacks. Reserves nothing.
+      // The band is otherwise dead space, so the whole strip takes clicks:
+      // clicking a dot brings that window to the front of its stack.
       color: "transparent"
       WlrLayershell.namespace: "bradgessler-stacks"
       WlrLayershell.layer: WlrLayer.Overlay
@@ -157,7 +158,6 @@ Item {
       exclusiveZone: 0
       anchors { bottom: true; left: true; right: true }
       implicitHeight: Math.max(8, bandHeight)
-      mask: Region {}
 
       Repeater {
         model: root.stacks.filter(function(s) { return s.ws === strip.workspaceId })
@@ -165,20 +165,41 @@ Item {
         Row {
           id: dots
           required property var modelData
-          spacing: 6
+          spacing: 0
           anchors.verticalCenter: parent.verticalCenter
           x: Math.round(modelData.centerX - strip.monitorX - width / 2)
 
           Repeater {
             model: dots.modelData.windows
 
-            Rectangle {
+            // A 12pt-wide, band-high hit target around each 6pt dot (same
+            // 12pt pitch as before), so it is easy to click.
+            Item {
+              id: hit
               required property var modelData
-              width: 6; height: 6; radius: 3
-              antialiasing: true
-              color: Color.bar.text
-              opacity: modelData.front ? 0.85 : 0.3
-              Behavior on opacity { NumberAnimation { duration: Style.duration(120); easing.type: Easing.OutCubic } }
+              width: 12; height: strip.height
+
+              Rectangle {
+                anchors.centerIn: parent
+                width: 6; height: 6; radius: 3
+                antialiasing: true
+                color: Color.bar.text
+                opacity: hit.modelData.front ? 0.85 : (area.containsMouse ? 0.6 : 0.3)
+                Behavior on opacity { NumberAnimation { duration: Style.duration(120); easing.type: Easing.OutCubic } }
+              }
+
+              MouseArea {
+                id: area
+                anchors.fill: parent
+                hoverEnabled: true
+                cursorShape: Qt.PointingHandCursor
+                onClicked: {
+                  var w = 'window = "address:' + hit.modelData.address + '"'
+                  Quickshell.execDetached(["hyprctl", "--batch",
+                    "dispatch hl.dsp.focus({ " + w + " }); dispatch hl.dsp.window.bring_to_top()"])
+                  Qt.callLater(function() { Hyprland.refreshToplevels() })
+                }
+              }
             }
           }
         }
