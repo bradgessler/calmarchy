@@ -107,7 +107,11 @@ Item {
   readonly property var appLibrary: root.shell ? root.shell.appLibrary : null
   property bool deleteConfirmOpen: false
   property var deleteTarget: null
-  onOpenedChanged: if (!opened) { deleteConfirmOpen = false; deleteTarget = null }
+  onOpenedChanged: if (!opened) { deleteConfirmOpen = false; deleteTarget = null; statusFocus = false }
+  // Right arrow moves the cursor into the status column, Left (or typing)
+  // brings it back. Enter still opens submenus.
+  property bool statusFocus: false
+  property int statusIndex: 0
   // Bound to the central [menu] section in shell.toml via Commons.Color.qml.
   // Each color already includes its alpha companion (composed in the
   // singleton), so consumers can drop them straight into a Rectangle.
@@ -840,6 +844,7 @@ Item {
     if (pushHistory && id !== root.activeMenu) root.navStack = root.navStack.concat([root.activeMenu])
     root.activeMenu = id
     root.filterText = ""
+    root.statusFocus = false
     root.selectedIndex = 0
     root.cursorActive = true
     if (fromPointer) pointerGate.allowInitialSample()
@@ -1342,6 +1347,36 @@ Item {
             return
           }
 
+          if (root.statusFocus) {
+            var last = statusGrid.count - 1
+            if (event.key === Qt.Key_Up) {
+              root.statusIndex = Math.max(0, root.statusIndex - 1)
+              event.accepted = true
+              return
+            } else if (event.key === Qt.Key_Down) {
+              root.statusIndex = Math.min(last, root.statusIndex + 1)
+              event.accepted = true
+              return
+            } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter || event.key === Qt.Key_Right) {
+              statusGrid.activate(root.statusIndex)
+              event.accepted = true
+              return
+            } else if (event.key === Qt.Key_Left || event.key === Qt.Key_Escape) {
+              root.statusFocus = false
+              root.selectedIndex = Math.max(0, Math.min(displayModel.count - 1, root.statusIndex))
+              root.cursorActive = true
+              event.accepted = true
+              return
+            }
+            // Anything else (typing a search) belongs to the menu again.
+            root.statusFocus = false
+          } else if (root.statusVisible && event.key === Qt.Key_Right && !root.filterText) {
+            root.statusIndex = Math.max(0, Math.min(statusGrid.count - 1, root.cursorActive ? root.selectedIndex : 0))
+            root.statusFocus = true
+            event.accepted = true
+            return
+          }
+
           if (event.key === Qt.Key_Delete) {
             root.requestDeleteSelected()
             event.accepted = true
@@ -1499,7 +1534,7 @@ Item {
               required property int childCount
               required property bool disabled
 
-              readonly property bool hasCursor: root.cursorActive && row.index === root.selectedIndex
+              readonly property bool hasCursor: root.cursorActive && !root.statusFocus && row.index === root.selectedIndex
               readonly property bool isApp: row.kind === "app"
               readonly property bool hasIcon: row.icon.length > 0 || row.isApp
 
@@ -1726,6 +1761,9 @@ Item {
             rowSpacing: root.rowSpacing
             foreground: root.foreground
             hoverBackground: root.selectedBackground
+            selectedText: root.selectedText
+            selectedBorderSpec: root.selectedBorderSpec
+            cursorIndex: root.statusFocus ? root.statusIndex : -1
             fontFamily: root.fontFamily
             radius: root.cornerRadius
             onActivated: function(command) {

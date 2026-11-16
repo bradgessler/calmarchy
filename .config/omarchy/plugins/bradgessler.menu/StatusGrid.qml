@@ -6,6 +6,7 @@ import Quickshell.Services.Pipewire
 import Quickshell.Services.UPower
 import qs.Commons
 import qs.Commons as Commons
+import qs.Ui
 
 // The status that used to live in the top bar's tray, as a column beside the
 // menu rows. Each row matches a menu row's height, icon and type, with the
@@ -20,7 +21,15 @@ Item {
   property color hoverBackground: Util.alpha(foreground, 0.08)
   property string fontFamily: Style.font.family
   property int radius: 0
+  property color selectedText: foreground
+  property var selectedBorderSpec: Border.none()
+  // Keyboard cursor from Menu.qml (-1 = none).
+  property int cursorIndex: -1
+  readonly property int count: tiles.length
   signal activated(string command)
+  function activate(index) {
+    if (index >= 0 && index < tiles.length) activated(tiles[index].command)
+  }
 
   property int rowHeight: Style.space(44)
   property int rowSpacing: Style.spacing.xs
@@ -174,13 +183,17 @@ Item {
     Repeater {
       model: root.tiles
 
-      delegate: Rectangle {
+      delegate: BorderSurface {
         id: tile
         required property var modelData
+        required property int index
+        readonly property bool hasCursor: tile.index === root.cursorIndex
+        readonly property color ink: hasCursor ? root.selectedText : root.foreground
         width: list.width
         height: root.rowHeight
         radius: root.radius
-        color: mouse.containsMouse ? root.hoverBackground : "transparent"
+        color: hasCursor || mouse.containsMouse ? root.hoverBackground : "transparent"
+        borderSpec: hasCursor ? root.selectedBorderSpec : Border.none()
 
         Text {
           id: glyph
@@ -190,7 +203,7 @@ Item {
           width: Style.space(36)
           horizontalAlignment: Text.AlignHCenter
           text: tile.modelData.glyph
-          color: root.foreground
+          color: tile.ink
           opacity: tile.modelData.dim ? 0.45 : 1
           font.family: root.fontFamily
           font.pixelSize: Style.font.heading
@@ -202,7 +215,7 @@ Item {
           anchors.leftMargin: Style.space(6)
           anchors.verticalCenter: parent.verticalCenter
           text: tile.modelData.label
-          color: root.foreground
+          color: tile.ink
           font.family: root.fontFamily
           font.pixelSize: Style.font.title
           font.weight: Font.Medium
@@ -216,7 +229,7 @@ Item {
           anchors.verticalCenter: parent.verticalCenter
           horizontalAlignment: Text.AlignRight
           text: tile.modelData.value
-          color: root.foreground
+          color: tile.ink
           opacity: tile.modelData.dim ? 0.4 : 0.6
           font.family: root.fontFamily
           font.pixelSize: Style.font.title
