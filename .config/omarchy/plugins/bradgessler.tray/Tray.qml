@@ -3,6 +3,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Effects
 import Quickshell.Services.SystemTray
+import Quickshell.Hyprland
 import qs.Commons
 import qs.Commons as Commons
 import qs.Ui
@@ -13,6 +14,22 @@ BarWidget {
   moduleName: "omarchy.tray"
 
   property bool expanded: false
+  property bool expandedBeforeMenu: false
+
+  // Super+Space: while the Omarchy menu is open, show every status icon here,
+  // then fold back to however the tray was before.
+  Connections {
+    target: Hyprland
+    function onRawEvent(event) {
+      if (event.data !== "omarchy-menu") return
+      if (event.name === "openlayer") {
+        root.expandedBeforeMenu = root.expanded
+        root.expanded = true
+      } else if (event.name === "closelayer") {
+        root.expanded = root.expandedBeforeMenu
+      }
+    }
+  }
   property bool managePopupOpen: false
   property bool trayMenuOpen: false
   property var activeTrayItem: null
