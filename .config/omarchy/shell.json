@@ -7,16 +7,13 @@
       "centerEnd": [],
       "left": [
         {
-          "id": "omarchy.menu"
+          "id": "bradgessler.menu"
         },
         {
           "id": "bradgessler.workspaces"
         }
       ],
       "right": [
-        {
-          "id": "bradgessler.tray"
-        },
         {
           "format": "dddd HH:mm",
           "formatAlt": "d MMMM 'W'ww yyyy",
@@ -111,5 +108,11 @@
       "id": "bradgessler.letterbox"
     }
   ],
-  "version": 1
+  "version": 1,
+  "disabledPlugins": [
+    "omarchy.menu"
+  ],
+  "cloneSourceRestores": [
+    "bradgessler.menu"
+  ]
 }
