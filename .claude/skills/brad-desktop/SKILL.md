@@ -40,7 +40,6 @@ more windows in the same panel. No Hyprland groups or tabs (Brad rejects tabs).
 | `omarchy-panel-drop` | ~/.local/bin | Super+drag release picks a panel |
 | `omarchy-window-cycle`, `omarchy-stack-cycle`, `omarchy-pane-focus` | ~/.local/bin | Super/Alt+Tab rotate the stack; Super+arrows move focus |
 | Stack dots | ~/.config/omarchy/plugins/bradgessler-stacks/ | dots in the bottom letterbox band under each stack of 2+; front window brighter; click a dot to bring that window to the front (12pt hit target, hover brightens); polls every 400ms |
-| Tray on Super+Space | ~/.config/omarchy/plugins/bradgessler.tray/Tray.qml | listens for Hyprland `openlayer>>omarchy-menu` / `closelayer`; expands the tray while the menu is open, then restores. Top bar stays black (shell.toml.tpl) to hide the notch |
 | Workspace selector | ~/.config/omarchy/plugins/bradgessler.workspaces/ | numbers only; current one brightest. Clicking the current workspace does nothing (stock widget cycled the layout) |
 
 Omarchy's own floating logic is in `/usr/share/omarchy/default/hypr/workspace-modes.lua`
