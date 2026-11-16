@@ -69,6 +69,25 @@ o.rebind("SUPER + DOWN", "Focus pane below", "omarchy-pane-focus down")
 o.rebind("ALT + TAB", "Cycle stack or windows", "omarchy-window-cycle next")
 o.rebind("ALT + SHIFT + TAB", "Cycle stack or windows (reverse)", "omarchy-window-cycle prev")
 
+-- Super+T like Cmd+T: a new tab in the focused app (Ctrl+T; Ctrl+Shift+T in
+-- terminals). Was: Omarchy's float/tile toggle, which on these floating
+-- workspaces tiled the window full-screen.
+local function send_shortcut_once(mods, key)
+  hl.dispatch(hl.dsp.send_key_state({ mods = mods, key = key, state = "down" }))
+  hl.timer(function()
+    hl.dispatch(hl.dsp.send_key_state({ mods = mods, key = key, state = "up" }))
+  end, { timeout = 50, type = "oneshot" })
+end
+o.rebind("SUPER + T", "New tab", function()
+  local window = hl.get_active_window()
+  for _, tag in ipairs((window and window.tags) or {}) do
+    if tag:gsub("%*$", "") == "terminal" then
+      return send_shortcut_once("CTRL SHIFT", "T")
+    end
+  end
+  send_shortcut_once("CTRL", "T")
+end)
+
 -- Super+N like Cmd+N: a new window of the focused app.
 o.bind("SUPER + N", "New window of the focused app", "omarchy-new-window")
 -- Cmd+Shift+N: the same, filling the workspace. (Replaces Omarchy's Editor key.)

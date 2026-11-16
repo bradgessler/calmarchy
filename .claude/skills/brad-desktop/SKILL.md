@@ -36,6 +36,7 @@ more windows in the same panel. No Hyprland groups or tabs (Brad rejects tabs).
 | `panel-open` rule + `panel_open_sync()` | hypr/bindings.lua | rule gives windows tagged `omarchy-mode-opened` the focused window's size/position **from their first frame** (no slide). Synced on `window.active`, by omarchy-snap, and by omarchy-new-window |
 | `panel-open-nomax` rule | hypr/bindings.lua | `suppress_event = "maximize"` so apps that remember being maximized (Firefox) still land in the panel |
 | `omarchy-panel-place <addr>` | ~/.local/bin, run from `window.open` | fallback: after 0.2s snaps the new window to the previous window's panel (full on empty workspace); honours the `$XDG_RUNTIME_DIR/omarchy-place-full` marker |
+| Super+T (Cmd+T) | hypr/bindings.lua | sends Ctrl+T (Ctrl+Shift+T in terminals) for a new tab. Replaces Omarchy's float/tile toggle, which tiled windows full-screen on these floating workspaces |
 | `omarchy-new-window [--full]` | ~/.local/bin | Super+N (Cmd+N) new window of the focused app, stacked; Super+Shift+N `--full` fills the workspace |
 | `omarchy-panel-drop` | ~/.local/bin | Super+drag release picks a panel |
 | `omarchy-window-cycle`, `omarchy-stack-cycle`, `omarchy-pane-focus` | ~/.local/bin | Super/Alt+Tab rotate the stack; Super+arrows move focus |
