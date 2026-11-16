@@ -135,11 +135,18 @@ Item {
   property int dividerHeight: Style.space(17)
   property bool searchDivider: false
   property int layoutSerial: 0
-  property int cardWidth: Math.min(root.dmenuActive ? Style.space(root.dmenuWidth) : ((root.activeMenu === "trigger.capture.screenrecord" || root.activeMenu === "appearance.font" || root.activeMenu === "update.kernel") ? Style.space(520) : Style.space(300)), panel.width - Style.gapsOut * 2)
+  property int cardWidth: Math.min(root.dmenuActive ? Style.space(root.dmenuWidth) : ((root.activeMenu === "trigger.capture.screenrecord" || root.activeMenu === "appearance.font" || root.activeMenu === "update.kernel") ? Style.space(520) : Style.space(300)) + root.statusExtraWidth, panel.width - Style.gapsOut * 2)
+  // Status column to the right of the menu rows (StatusGrid.qml), on every
+  // regular menu page; dmenu pickers keep their single column.
+  readonly property bool statusVisible: !root.dmenuActive
+  readonly property int statusWidth: Style.space(300)
+  readonly property int statusGutter: Style.space(17)
+  readonly property int statusExtraWidth: statusVisible ? statusWidth + statusGutter : 0
+  readonly property int menuListHeight: statusVisible ? Math.max(visibleRowsHeight, statusGrid.implicitHeight) : visibleRowsHeight
   property int visibleRowsHeight: root.dmenuActive ? dmenuRowListHeight(layoutSerial, displayModel.count, filterText) : rowListHeight(layoutSerial, displayModel.count, filterText, searchDivider)
   property int cardHeight: root.dmenuActive
     ? Math.min(contentMargin * 2 + headerHeight + (mode === "input" ? 0 : contentSpacing + visibleRowsHeight), panel.height - Style.gapsOut * 2)
-    : Math.min(contentMargin * 2 + headerHeight + contentSpacing + visibleRowsHeight, panel.height - Style.gapsOut * 2)
+    : Math.min(contentMargin * 2 + headerHeight + contentSpacing + menuListHeight, panel.height - Style.gapsOut * 2)
 
   function finishRequest(selection) {
     if (!root.requestActive || !root.doneFile) {
@@ -1430,8 +1437,8 @@ Item {
         }
 
         Item {
-          width: parent.width
-          height: root.visibleRowsHeight
+          width: parent.width - root.statusExtraWidth
+          height: root.menuListHeight
 
           ListView {
             id: resultList
@@ -1693,6 +1700,33 @@ Item {
               font.pixelSize: Style.font.title
               horizontalAlignment: Text.AlignHCenter
               width: Style.space(320)
+            }
+          }
+
+          // Hairline between the menu rows and the status column.
+          Rectangle {
+            visible: root.statusVisible
+            x: parent.width + root.statusGutter / 2
+            width: Style.spacing.hairline
+            height: parent.height
+            color: Util.alpha(root.foreground, 0.2)
+          }
+
+          StatusGrid {
+            id: statusGrid
+            visible: root.statusVisible
+            active: root.opened && root.statusVisible
+            x: parent.width + root.statusGutter
+            width: root.statusWidth
+            rowHeight: root.baseRowHeight
+            rowSpacing: root.rowSpacing
+            foreground: root.foreground
+            hoverBackground: root.selectedBackground
+            fontFamily: root.fontFamily
+            radius: root.cornerRadius
+            onActivated: function(command) {
+              root.cancel()
+              root.runAction(command)
             }
           }
         }
