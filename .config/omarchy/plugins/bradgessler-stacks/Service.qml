@@ -30,7 +30,7 @@ Item {
 
   // Must match omarchy-snap: the gap around and between snapped windows, and
   // how far off a frame a window can sit and still count as snapped there.
-  readonly property int gap: 8
+  readonly property int gap: 12
   readonly property int tolerance: 6
   property var stacks: []
   // Dots sit faint at rest and come up while something is switching (and
@@ -167,9 +167,9 @@ Item {
       readonly property int workspaceId: monitor && monitor.activeWorkspace ? monitor.activeWorkspace.id : -1
       readonly property int monitorX: ipc ? ipc.x : 0
       // The bottom letterbox band's height (its reserved edge).
-      // The strip is the pane gap under the windows (no bottom band any more),
-      // so indicators sit centered in the same 8pt margin the panes have
-      // between them and at the sides.
+      // The strip is the 12pt pane gap under the windows (no bottom band), the
+      // same margin panes have between them and at the sides: a 4pt bar with
+      // 4pt above and below.
       readonly property int bandHeight: root.gap
       HoverHandler { id: bandHover }
 
@@ -193,7 +193,7 @@ Item {
           required property var modelData
           spacing: 0
 
-          // No backdrop pill: in the 8pt margin it butted against the window
+          // No backdrop pill: in the bottom margin it butted against the window
           // edge. The bars float alone, centered between window and screen edge.
           Rectangle {
             visible: false
@@ -220,8 +220,8 @@ Item {
 
               Rectangle {
                 anchors.centerIn: parent
-                // Thin rounded bars, centered in the 8pt margin under the pane.
-                width: 14; height: 3; radius: 1.5
+                // Thin rounded bars, centered in the 12pt margin under the pane.
+                width: 14; height: 4; radius: 2
                 antialiasing: true
                 color: Color.bar.text
                 // The window that just came to the front: its dot fades up, then

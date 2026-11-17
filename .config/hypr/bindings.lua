@@ -129,9 +129,9 @@ end)
 -- size and spot from their first frame. omarchy-panel-place still settles any
 -- case this misses (empty workspace, a window off the panel grid).
 -- omarchy-snap calls panel_open_sync() after it moves a window.
--- Panel frames on a monitor, matching omarchy-snap (8pt gaps, inside the
+-- Panel frames on a monitor, matching omarchy-snap (12pt gaps, inside the
 -- reserved bars): full and the two halves, as {x, y, w, h}.
-local PANEL_GAP = 8
+local PANEL_GAP = 12
 local function panel_frames(m)
   local r = m.reserved or {}
   local ax = m.x + (r.left or 0) + PANEL_GAP
