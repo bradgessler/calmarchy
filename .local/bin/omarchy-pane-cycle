@@ -1,0 +1,32 @@
+#!/bin/bash
+# Cmd+Tab: focus the next pane (Shift: the previous one), across every display.
+# A pane is a panel with windows in it: windows sharing exactly the same frame
+# form one pane, represented by its front (most recently focused) window. Panes
+# go in reading order: display by display (top to bottom, then left to right),
+# and within a display left to right, then top to bottom. Stacks within a pane
+# rotate with Cmd+` (omarchy-stack-cycle); with a single pane Cmd+Tab does that.
+# usage: omarchy-pane-cycle [next|prev]
+dir=${1:-next}
+active=$(hyprctl -j activewindow | jq -r '.address // empty')
+
+target=$(jq -nr --arg dir "$dir" --arg active "$active" \
+  --argjson clients "$(hyprctl -j clients)" --argjson monitors "$(hyprctl -j monitors)" '
+  ($monitors | map(.activeWorkspace.id)) as $visible
+  | ($monitors | map({key: (.id | tostring), value: {x, y}}) | from_entries) as $mon
+  | [ $clients[]
+      | select(.mapped and (.hidden | not) and .workspace.id > 0
+               and ([.workspace.id] | inside($visible)))
+      | . + {key: "\(.monitor):\(.at[0]):\(.at[1]):\(.size[0]):\(.size[1])"} ]
+  | group_by(.key)
+  | map(min_by(.focusHistoryID) + {members: map(.address)})
+  | sort_by([$mon[(.monitor | tostring)].y, $mon[(.monitor | tostring)].x, .at[0], .at[1]])
+  | . as $panes
+  | (map(.members | index($active) != null) | index(true)) as $i
+  | if ($panes | length) == 0 then empty
+    elif $i == null then $panes[0].address
+    else $panes[(($i + (if $dir == "prev" then -1 else 1 end)) % ($panes | length) + ($panes | length)) % ($panes | length)].address
+    end')
+
+# Only one pane: rotate its stack instead, so Cmd+Tab always does something.
+if [[ -z $target || $target == "$active" ]]; then exec omarchy-stack-cycle "$dir"; fi
+hyprctl --batch "dispatch hl.dsp.focus({ window = \"address:$target\" }); dispatch hl.dsp.window.bring_to_top()" >/dev/null

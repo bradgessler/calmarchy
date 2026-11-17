@@ -70,10 +70,11 @@ for key, direction in pairs({ LEFT = "l", RIGHT = "r", UP = "u", DOWN = "d" }) d
   end)
 end
 
--- Super+Tab like Cmd+Tab: rotate the stack under the active window, or cycle
--- the workspace's windows when it isn't stacked. (Was: next/previous workspace.)
-o.rebind("SUPER + TAB", "Cycle stack or windows", "omarchy-window-cycle next")
-o.rebind("SUPER + SHIFT + TAB", "Cycle stack or windows (reverse)", "omarchy-window-cycle prev")
+-- Super+Tab like Cmd+Tab: cycle panes across all displays, wrapping (Shift
+-- reverses); with a single pane it rotates that pane's stack. Super+` always
+-- rotates the stack. (Was: next/previous workspace.)
+o.rebind("SUPER + TAB", "Next pane (all displays)", "omarchy-pane-cycle next")
+o.rebind("SUPER + SHIFT + TAB", "Previous pane", "omarchy-pane-cycle prev")
 
 -- Super+Left/Right move between panes, rolling over to the neighboring workspace
 -- past the last pane. Super+Up/Down move between stacked-vertical panes.
