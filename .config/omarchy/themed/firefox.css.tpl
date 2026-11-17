@@ -36,11 +36,21 @@
 .urlbarView { background-color: {{ background }} !important; color: {{ foreground }} !important; }
 .urlbarView-row[selected] > .urlbarView-row-inner { background-color: {{ selection }} !important; }
 
-/* Quiet address bar: hairline border, no glow or thick focus ring. */
+/* Quiet address bar: part of the toolbar until used. No box at rest, a faint
+   fill on hover, and a hairline only while focused; no glow or focus ring. */
 #urlbar-background, #searchbar {
-  border: 1px solid {{ lighter_background }} !important;
+  background-color: transparent !important;
+  border: 1px solid transparent !important;
   box-shadow: none !important;
   outline: none !important;
+}
+#urlbar:hover:not([focused]) > #urlbar-background {
+  background-color: {{ dark_background }} !important;
+}
+#urlbar[focused] > #urlbar-background,
+#urlbar[focused="true"] > #urlbar-background,
+#urlbar:focus-within > #urlbar-background {
+  background-color: {{ dark_background }} !important;
 }
 #urlbar[focused] > #urlbar-background,
 #urlbar[focused="true"] > #urlbar-background,

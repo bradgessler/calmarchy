@@ -39,3 +39,9 @@
   border-bottom: none !important;
 }
 #urlbar-input { font-size: 12px !important; }
+
+/* No search-engine pill in the address bar (its fully round chip was the only
+   rounded thing in the chrome). Engines stay reachable from the dropdown. */
+#urlbar-searchmode-switcher { display: none !important; }
+#urlbar-input-container { padding-inline-start: 6px !important; }
+#urlbar-input::placeholder { opacity: 0.45 !important; }
