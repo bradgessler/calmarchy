@@ -1,6 +1,6 @@
-# Omarchy, calm and Mac-like
+# Calmarchy
 
-My [Omarchy](https://omarchy.org) setup on a MacBook Air (M2) running Asahi Linux. It's Hyprland in floating mode, set up to feel like macOS: windows live in panes, there's little chrome, and colours stay calm.
+A calm, Mac-like [Omarchy](https://omarchy.org). This is my setup on a MacBook Air (M2) running Asahi Linux. It's Hyprland in floating mode, set up to feel like macOS: windows live in panes, there's little chrome, and colours stay calm.
 
 ![Desktop](screenshots/desktop.png)
 
@@ -52,7 +52,7 @@ The Mac's Cmd key is Super here.
 On a fresh Omarchy install:
 
 ```sh
-git clone --bare https://github.com/bradgessler/omarchy.git ~/.dotfiles
+git clone --bare https://github.com/bradgessler/calmarchy.git ~/.dotfiles
 dotfiles() { git --git-dir="$HOME/.dotfiles" --work-tree="$HOME" "$@"; }
 
 # Omarchy's own copies of these files are in the way: move them to
