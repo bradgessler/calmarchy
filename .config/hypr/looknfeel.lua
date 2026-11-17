@@ -72,8 +72,9 @@ hl.config({
       inactive_border = "rgba(4a4a4455)",
     },
   },
-  -- Square corners.
-  decoration = { rounding = 0 },
+  -- Slight rounding (3pt): just takes the edge off. Brad rejected 6 as too
+  -- round; small keeps the 8pt border grab for resizing reaching the corners.
+  decoration = { rounding = 3 },
 })
 
 -- No title bars on floating windows. Omarchy's floating mode turns them on after
