@@ -68,19 +68,25 @@ hl.config({
     border_size = 1,
     col = {
       -- 1pt is Hyprland's floor (2 physical px on Retina), so soften it to read as a hairline.
-      active_border = "rgba(8a867299)",
-      inactive_border = "rgba(4a4a4455)",
+      -- Neutral hairlines (the beige 8a8672 read as a muddy rim).
+      active_border = "rgba(ffffff2e)",
+      inactive_border = "rgba(ffffff14)",
     },
   },
   -- Slight rounding (3pt): just takes the edge off. Brad rejected 6 as too
   -- round; small keeps the 8pt border grab for resizing reaching the corners.
-  decoration = { rounding = 3 },
+  decoration = {
+    rounding = 3,
+  },
 })
 
--- No title bars on floating windows. Omarchy's floating mode turns them on after
--- user config has loaded, so turn them back off once every reload has settled.
+-- No title bars and no drop shadows on floating windows. Omarchy's floating
+-- mode turns both on after user config has loaded, so turn them back off once
+-- every reload has settled. (With 8pt gaps, neighbours' soft shadows overlapped
+-- into a grey smudge between panes.)
 local function no_titlebars()
   hl.config({ plugin = { hyprbars = { enabled = false } } })
+  hl.config({ decoration = { shadow = { enabled = false } } })
 end
 no_titlebars()
 hl.on("config.reloaded", no_titlebars)
