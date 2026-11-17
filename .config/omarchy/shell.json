@@ -94,6 +94,7 @@
     "bradgessler.menu"
   ],
   "disabledPlugins": [
+    "omarchy.dock",
     "omarchy.menu"
   ],
   "dock": {
