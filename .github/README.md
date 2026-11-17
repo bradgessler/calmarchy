@@ -1,8 +1,8 @@
 # Calmarchy
 
-[Omarchy](https://omarchy.org) is great. It is also a bag of Doritos and a can of Surge turned into an operating system: neon borders, tiles flying everywhere, a keybinding for every mood, and a screensaver that sets your text on fire.
+The [Omarchy](https://omarchy.org) UI is the embodiment of a bag of Doritos and a can of Surge: neon borders, tiles flying everywhere, a keybinding for every mood, and a screensaver that sets your text on fire.
 
-Calmarchy is for people coming over from macOS who love what's underneath but want to put the Surge down. Calm colours, no tabs, windows that stay where you put them, and two menus to get around: **Cmd+Space** for the system and **Cmd+K** for whatever app you're in.
+I wanted something calm. Calmarchy is for people coming over from macOS who like what's underneath but want to put the Surge down: calm colours, no tabs, windows that stay where you put them, and two menus to get around, **Cmd+Space** for the system and **Cmd+K** for whatever app you're in.
 
 It isn't a fork, just an idea: a set of config files, scripts and shell plugins that sit on top of a stock Omarchy install, which keeps updating as usual. This is my setup on a MacBook Air (M2) running Asahi Linux, with Hyprland in floating mode, set up to feel like macOS: windows live in panes, there's little chrome, and colours stay calm.
 
