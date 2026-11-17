@@ -27,3 +27,6 @@ user_pref("layout.css.devPixelsPerPx", "1.75");
 // New tabs and new windows open blank (no Firefox Home, shortcuts or stories).
 user_pref("browser.newtabpage.enabled", false);
 user_pref("browser.startup.homepage", "about:blank");
+// No search-engine switcher pill in the address bar; just type.
+user_pref("browser.urlbar.searchModeSwitcher.featureGate", false);
+user_pref("browser.urlbar.scotchBonnet.enableOverride", false);
