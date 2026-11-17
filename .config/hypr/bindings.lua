@@ -99,9 +99,9 @@ local function send_shortcut_once(mods, key)
 end
 o.rebind("SUPER + T", "New tab (Firefox: new window, no tabs)", function()
   local window = hl.get_active_window()
-  -- Firefox has no tabs here: Cmd+T opens a window, which stacks in the pane.
+  -- Firefox has no tabs here: Cmd+T opens a window on this pane's stack.
   if window and window.class == "firefox" then
-    return hl.exec_cmd("omarchy-new-window")
+    return hl.exec_cmd("omarchy-new-window --stack")
   end
   for _, tag in ipairs((window and window.tags) or {}) do
     if tag:gsub("%*$", "") == "terminal" then

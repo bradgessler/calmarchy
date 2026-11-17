@@ -19,6 +19,9 @@ panel=full
 marker="${XDG_RUNTIME_DIR:-/tmp}/omarchy-place-full"
 if [[ -n $(find "$marker" -newermt '-10 seconds' 2>/dev/null) ]]; then
   rm -f "$marker"   # Cmd+Shift+N asked for a full window
+elif [[ -n $(find "${XDG_RUNTIME_DIR:-/tmp}/omarchy-place-stack" -newermt '-10 seconds' 2>/dev/null) && -n $prev ]]; then
+  rm -f "${XDG_RUNTIME_DIR:-/tmp}/omarchy-place-stack"   # Cmd+T asked for this stack
+  panel=$(omarchy-snap --frame-of "$prev") || panel=full
 elif [[ -n $prev ]]; then
   panel=$(omarchy-snap --frame-of "$prev") || panel=full
   # Beside a half whose other half is empty space, take that half instead of

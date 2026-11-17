@@ -38,7 +38,7 @@ The address floats in a small pill at the bottom center. Each time a page loads 
 
 ![The URL pill, just loaded and then at rest](screenshots/url-pill.png)
 
-DuckDuckGo is the default search, uBlock Origin Lite blocks ads using only built-in rules (no downloaded lists), new tabs are blank, typing an address fills in inline instead of popping up suggestions, link previews are off, and trackpad scrolling has a Mac-like glide. Tabs are off: Cmd+T, Cmd+N, links that would open a tab and middle-clicks all open a new window, which stacks in the pane.
+DuckDuckGo is the default search, uBlock Origin Lite blocks ads using only built-in rules (no downloaded lists), new tabs are blank, typing an address fills in inline instead of popping up suggestions, link previews are off, and trackpad scrolling has a Mac-like glide. Tabs are off: Cmd+T opens a new window right on the stack you're in, and links that would open a tab (or middle-clicks) open a window too.
 
 **Quiet top bar.** Workspaces on the left, battery % and date on the right, nothing else. The top bar and the bottom dot band can be black (they blend into the notch, like part of the hardware) or clear over the wallpaper: Spotlight → Trigger → Toggle → Clear/Black Bars, or `omarchy-bands clear|black`.
 
@@ -63,7 +63,7 @@ The Mac's Cmd key is Super here.
 | Ctrl+Option+Return | full screen |
 | Ctrl+Option+U/I/J/K | quarters |
 | Cmd+N / Cmd+Shift+N | new window of this app, in this pane / full screen |
-| Cmd+T | new tab (in Firefox: new window, since tabs are off) |
+| Cmd+T | new tab (in Firefox: a new window on this stack, since tabs are off) |
 | Cmd+drag | move a window; letting go drops it into a pane |
 | 3 or 4 fingers left/right | switch workspace |
 | 4-finger spread / pinch | show desktop / bring windows back |
