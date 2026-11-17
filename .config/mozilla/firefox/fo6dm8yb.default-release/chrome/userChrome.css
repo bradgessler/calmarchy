@@ -57,9 +57,7 @@
 #urlbar .urlbar-icon:hover { opacity: 0.9 !important; }
 
 /* Floating controls: the page fills the window and the toolbar floats over it
-   as an inset bar, tucked away until wanted. It slides down when the pointer
-   reaches the top edge, when the address bar is focused (Cmd+L), or while one
-   of its menus is open. */
+   as an inset bar, always shown (Brad: "always show the url"). */
 :root { --float-gap: 6px; }
 #navigator-toolbox {
   position: fixed !important;
@@ -72,17 +70,5 @@
   border-radius: 3px !important;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35) !important;
   overflow: hidden !important;
-  opacity: 0;
-  transform: translateY(calc(-100% - var(--float-gap) + 6px));
-  transition: transform 160ms ease-out, opacity 120ms ease-out !important;
-}
-#navigator-toolbox:hover,
-#navigator-toolbox:focus-within,
-#navigator-toolbox[customizing],
-#navigator-toolbox:has([open]),
-#mainPopupSet:has(> [panelopen]:not(#ask-chat-shortcuts, #tab-preview-panel)) ~ #navigator-toolbox,
-:root:has(#urlbar[open]) #navigator-toolbox {
-  opacity: 1;
-  transform: none;
 }
 #browser, #customization-container { margin-top: 0 !important; }
