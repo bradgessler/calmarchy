@@ -30,6 +30,9 @@ fi
 [[ $dir == left || $dir == right ]] || exit 0
 ws=$(hyprctl -j activeworkspace | jq .id)
 (( ws < 1 )) && exit 0
-[[ $dir == right ]] && next=$((ws + 1)) || next=$((ws - 1))
-(( next >= 1 && next <= max_ws )) || exit 0
+# Each display has its own block of ten ids (laptop 1-10, next 11-20, ...).
+base=$(( (ws - 1) / 10 * 10 )); slot=$(( ws - base ))
+[[ $dir == right ]] && slot=$((slot + 1)) || slot=$((slot - 1))
+(( slot >= 1 && slot <= max_ws )) || exit 0
+next=$((base + slot))
 hyprctl dispatch "hl.dsp.focus({ workspace = $next })" >/dev/null

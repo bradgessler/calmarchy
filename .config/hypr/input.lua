@@ -91,9 +91,41 @@ hl.config({
 hl.gesture({ fingers = 4, direction = "pinchout", action = function() hl.dispatch(hl.dsp.exec_cmd("omarchy-show-desktop show")) end })
 hl.gesture({ fingers = 4, direction = "pinchin", action = function() hl.dispatch(hl.dsp.exec_cmd("omarchy-show-desktop hide")) end })
 
--- Keep five workspaces around like macOS Spaces. Hyprland drops a workspace the
--- moment it is empty, and swipes only move between workspaces that exist, so
--- with everything on workspace 1 there was nowhere to swipe to.
-for workspace = 1, 5 do
-  hl.workspace_rule({ workspace = tostring(workspace), persistent = true })
+-- Keep five workspaces around on every display, like macOS Spaces. Hyprland
+-- drops a workspace the moment it is empty, and swipes only move between the
+-- workspaces on the display you're on, so with nothing kept there was nowhere
+-- to swipe to. Omarchy gives each display a block of ten ids (laptop 1-10,
+-- next display 11-20, ...) recorded in ~/.local/state/omarchy/monitor-workspaces;
+-- each plugged-in display keeps the first five of its own block, pinned to it.
+-- (Unpinned, Hyprland parked the laptop's empty ones on the big display.)
+local function keep_workspaces()
+  local plugged = {}
+  for _, monitor in ipairs(hl.get_monitors() or {}) do
+    plugged[monitor.name] = true
+  end
+  local file = io.open((os.getenv("HOME") or "") .. "/.local/state/omarchy/monitor-workspaces", "r")
+  local blocks = {}
+  if file then
+    for line in file:lines() do
+      local block, connector = line:match("^(%d+)\t([^\t]*)\t")
+      if block then blocks[tonumber(block)] = connector end
+    end
+    file:close()
+  end
+  if not next(blocks) then blocks[0] = "" end
+  for block, connector in pairs(blocks) do
+    local here = connector == "" or plugged[connector]
+    for slot = 1, 5 do
+      local rule = { workspace = tostring(block * 10 + slot), persistent = here and true or false }
+      if here and connector ~= "" then rule.monitor = connector end
+      hl.workspace_rule(rule)
+    end
+  end
+end
+keep_workspaces()
+for _, event in ipairs({ "monitor.added", "monitor.removed" }) do
+  -- After Omarchy has recorded the display's block.
+  hl.on(event, function()
+    hl.timer(keep_workspaces, { timeout = 500, type = "oneshot" })
+  end)
 end
