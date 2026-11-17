@@ -68,8 +68,9 @@ hl.config({
     border_size = 1,
     col = {
       -- 1pt is Hyprland's floor (2 physical px on Retina), so soften it to read as a hairline.
-      -- Neutral hairlines (the beige 8a8672 read as a muddy rim).
-      active_border = "rgba(ffffff2e)",
+      -- Neutral hairlines (the beige 8a8672 read as a muddy rim); the active
+      -- one a little stronger, since focus shows only at the edges.
+      active_border = "rgba(ffffff59)",
       inactive_border = "rgba(ffffff14)",
     },
   },
@@ -90,8 +91,9 @@ local function no_titlebars()
     enabled = true, range = 14, render_power = 3, offset = "0 3",
     color = "rgba(00000059)", color_inactive = "rgba(00000000)",
   } } })
-  -- The active window reads as lit: the others dim a touch.
-  hl.config({ decoration = { dim_inactive = true, dim_strength = 0.1 } })
+  -- No dimming of inactive windows: it shifts their colours (comparing two
+  -- photos side by side would be wrong). Focus shows only at the edges.
+  hl.config({ decoration = { dim_inactive = false } })
 end
 no_titlebars()
 hl.on("config.reloaded", no_titlebars)
