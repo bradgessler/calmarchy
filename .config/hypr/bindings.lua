@@ -31,11 +31,13 @@
 -- scrolling or floating mode by accident. Super+Alt+L still cycles if wanted.
 hl.unbind("SUPER + L")
 
--- Panels (Ctrl+Alt, like Rectangle's Ctrl+Option): halves, quarters, and full.
-o.bind("CTRL + ALT + LEFT", "Snap window left half", "omarchy-snap left")
-o.bind("CTRL + ALT + RIGHT", "Snap window right half", "omarchy-snap right")
-o.bind("CTRL + ALT + UP", "Snap window top half", "omarchy-snap top")
-o.bind("CTRL + ALT + DOWN", "Snap window bottom half", "omarchy-snap bottom")
+-- Panels (Ctrl+Alt, like Rectangle's Ctrl+Option): left/right halves and full;
+-- quarters on U/I/J/K. Up/Down only move a window between displays.
+-- The arrows carry the window to the next display that way (see omarchy-snap-dir).
+o.bind("CTRL + ALT + LEFT", "Snap window left half (or onto the display to the left)", "omarchy-snap-dir left")
+o.bind("CTRL + ALT + RIGHT", "Snap window right half (or onto the display to the right)", "omarchy-snap-dir right")
+o.bind("CTRL + ALT + UP", "Move window to the display above", "omarchy-snap-dir up")
+o.bind("CTRL + ALT + DOWN", "Move window to the display below", "omarchy-snap-dir down")
 o.bind("CTRL + ALT + RETURN", "Maximize window", "omarchy-snap full")
 o.bind("CTRL + ALT + U", "Snap window top left", "omarchy-snap tl")
 o.bind("CTRL + ALT + I", "Snap window top right", "omarchy-snap tr")

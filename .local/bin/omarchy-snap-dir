@@ -1,0 +1,47 @@
+#!/bin/bash
+# Ctrl+Alt+arrow: snap the active window that way, carrying it to the next
+# display when there is one in that direction.
+#   up/down     a display that way: move there, same panel (full stays full,
+#               a left half stays left). None: nothing (no top/bottom halves).
+#   left/right  already in that half and a display that way: move there, into
+#               the half nearest this display (left from a left half lands in
+#               the right half of the display to the left). Otherwise: snap to
+#               that half here.
+dir=${1:?usage: omarchy-snap-dir up|down|left|right}
+win=$(hyprctl -j activewindow)
+addr=$(jq -r '.address // empty' <<<"$win")
+[[ -n $addr ]] || exit 0
+panel=$(omarchy-snap --frame-of "$addr")
+
+# The display sharing an edge with this one in that direction, if any.
+neighbor=$(hyprctl -j monitors | jq -r --argjson id "$(jq '.monitor' <<<"$win")" --arg dir "$dir" '
+  map(. + {w: (.width / .scale), h: (.height / .scale)}) as $all
+  | ($all[] | select(.id == $id)) as $c
+  | def near(a; b): ((a - b) | fabs) <= 2;
+    def xover(m): (m.x < $c.x + $c.w) and (m.x + m.w > $c.x);
+    def yover(m): (m.y < $c.y + $c.h) and (m.y + m.h > $c.y);
+  [ $all[] | select(.id != $id and (.disabled | not))
+    | select(
+        ($dir == "up"    and near(.y + .h; $c.y) and xover(.)) or
+        ($dir == "down"  and near(.y; $c.y + $c.h) and xover(.)) or
+        ($dir == "left"  and near(.x + .w; $c.x) and yover(.)) or
+        ($dir == "right" and near(.x; $c.x + $c.w) and yover(.)) ) ]
+  | .[0].name // empty')
+
+carry() { # carry <panel on the new display>
+  hyprctl dispatch "hl.dsp.window.move({ monitor = \"$neighbor\", window = \"address:$addr\" })" >/dev/null
+  sleep 0.05
+  omarchy-snap "$1" "$addr"
+  hyprctl dispatch "hl.dsp.focus({ window = \"address:$addr\" })" >/dev/null
+}
+
+case $dir in
+  up|down)
+    if [[ -n $neighbor ]]; then
+      case $panel in left|right|full) carry "$panel" ;; *) carry full ;; esac
+    fi ;;
+  left)
+    if [[ -n $neighbor && $panel == left ]]; then carry right; else omarchy-snap left; fi ;;
+  right)
+    if [[ -n $neighbor && $panel == right ]]; then carry left; else omarchy-snap right; fi ;;
+esac
