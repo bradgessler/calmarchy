@@ -68,10 +68,11 @@ hl.config({
     border_size = 1,
     col = {
       -- 1pt is Hyprland's floor (2 physical px on Retina), so soften it to read as a hairline.
-      -- Neutral hairlines (the beige 8a8672 read as a muddy rim); the active
-      -- one a little stronger, since focus shows only at the edges.
-      active_border = "rgba(ffffff59)",
-      inactive_border = "rgba(ffffff14)",
+      -- No visible window borders (Brad: borders suck on windows); they stay
+      -- 1pt and transparent so grabbing the edge still resizes. Focus is the
+      -- active window's shadow.
+      active_border = "rgba(00000000)",
+      inactive_border = "rgba(00000000)",
     },
   },
   -- Slight rounding (3pt): just takes the edge off. Brad rejected 6 as too
@@ -88,11 +89,11 @@ hl.config({
 local function no_titlebars()
   hl.config({ plugin = { hyprbars = { enabled = false } } })
   hl.config({ decoration = { shadow = {
-    enabled = true, range = 14, render_power = 3, offset = "0 3",
-    color = "rgba(00000059)", color_inactive = "rgba(00000000)",
+    enabled = true, range = 18, render_power = 3, offset = "0 4",
+    color = "rgba(00000073)", color_inactive = "rgba(00000000)",
   } } })
   -- No dimming of inactive windows: it shifts their colours (comparing two
-  -- photos side by side would be wrong). Focus shows only at the edges.
+  -- photos side by side would be wrong). Focus is the shadow.
   hl.config({ decoration = { dim_inactive = false } })
 end
 no_titlebars()

@@ -44,7 +44,7 @@ DuckDuckGo is the default search, uBlock Origin Lite blocks ads using only built
 
 **Multiple displays.** Each display has its own five workspaces, and trackpad swipes work on each. Moving a window to another display keeps its pane: a full-screen window stays full screen, and a left half lands in the left half.
 
-**Look.** Hand-made Monokai theme with a warm grey accent, the Inter UI font, 3pt window corners, neutral hairline borders. The active window gets a slightly brighter hairline and a soft shadow; nothing dims, so colours inside windows are never altered. No dock and no screensaver.
+**Look.** Hand-made Monokai theme with a warm grey accent, the Inter UI font, 3pt window corners, neutral hairline borders. Windows have no borders; the active one is marked by a soft shadow. Nothing dims, so colours inside windows are never altered. Spotlight and Cmd+K cards get a faint hairline. No dock and no screensaver.
 
 ## Keys
 

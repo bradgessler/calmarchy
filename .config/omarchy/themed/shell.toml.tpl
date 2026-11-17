@@ -163,9 +163,10 @@ countdown        = "{{ accent }}"
 background                = "{{ background }}"
 background-alpha          = 0.95
 text                      = "{{ foreground }}"
-# A faint hairline: the dimmed screen already sets the card apart.
-border                    = "{{ foreground }}"
-border-alpha              = 0.12
+# A focused hairline for the menu cards (windows have no borders; their focus
+# is a shadow).
+border                    = "#ffffff"
+border-alpha              = 0.35
 scrim                     = "{{ background }}"
 scrim-alpha               = 0.5
 selected-background       = "{{ foreground }}"
@@ -181,9 +182,10 @@ selected-border-alpha     = 0.25
 background                = "{{ background }}"
 background-alpha          = 1.0
 text                      = "{{ foreground }}"
-# A faint hairline: the dimmed screen already sets the card apart.
-border                    = "{{ foreground }}"
-border-alpha              = 0.12
+# A focused hairline for the menu cards (windows have no borders; their focus
+# is a shadow).
+border                    = "#ffffff"
+border-alpha              = 0.35
 scrim                     = "{{ background }}"
 scrim-alpha               = 0.5
 selected-background       = "{{ foreground }}"
