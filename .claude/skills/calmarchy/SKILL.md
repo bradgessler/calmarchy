@@ -1,0 +1,122 @@
+---
+name: calmarchy
+description: How Calmarchy works (Brad's calm, Mac-like layer on Omarchy, github.com/bradgessler/calmarchy) and how to change it safely — panes and stacks, new-window placement, stack dots, Spotlight (Cmd+Space) and the per-app Cmd+K menu, the toolbar-free Firefox, multiple displays, the dotfiles repo, testing recipes, and crash gotchas. Use alongside the omarchy skill for ANY change to ~/.config/hypr, ~/.config/omarchy, ~/.local/bin/omarchy-* scripts, Firefox's userChrome/user.js, window placement, the bar, or when something in the desktop "is fucked".
+---
+
+# Calmarchy
+
+A calm, Mac-like layer on Omarchy (Hyprland 0.56, Lua config), on an M2 Air
+(1280x832 logical, scale 2) plus sometimes an LG UltraFine 5K. Not a fork: config
+files, scripts and shell plugins over a stock Omarchy install. Brad wants calm
+visuals, no tabs, macOS habits, and fixes applied and verified rather than menus
+of options. Read the memory notes first (see bottom).
+
+## Rule zero: the repo
+
+Config is a bare repo at `~/.dotfiles`, work tree `$HOME`, remote
+`github.com/bradgessler/calmarchy` (public). `~/.local/bin/dotfiles` works like git.
+
+- Before you start: `dotfiles status -s`.
+- After every working change: `dotfiles add <new files>` (untracked files are
+  hidden), `dotfiles commit` with the Co-Authored-By trailer, then
+  `dotfiles push`. One commit per logical change.
+- Keep `~/.github/README.md` (the GitHub page, with screenshots in
+  `~/.github/screenshots/`) and `~/.local/bin/omarchy-dotfiles-setup` (what a
+  fresh clone needs beyond files) in step with features.
+- This skill and the memory notes are in the repo too; update them when the
+  design changes or you learn a gotcha.
+- Never put secrets, Brad's email, or his Wi-Fi name in the repo or screenshots.
+
+## Panes and stacks
+
+Every workspace is Omarchy **floating** mode (default in
+`~/.local/state/omarchy/workspace-layouts/default.lua`). Windows live in nine
+panels per display: `full left right top bottom tl tr bl br`. A **stack** is
+windows in the same panel. No tabs, no Hyprland groups.
+
+| Piece | Where | What |
+|---|---|---|
+| `omarchy-snap <panel> [addr]` | ~/.local/bin | place a window. `--frame-of <addr>` names its panel (6px tolerance), `--frame <panel>` / `--frame-on <panel> <monitor-id>` print "x y w h", `--last <addr>` the panel it was last snapped to (memo in `$XDG_RUNTIME_DIR/omarchy-panels/`). Calls `panel_open_sync()` |
+| `panel-open` rule, `panel_open_sync()`, `panel_open_target()` | hypr/bindings.lua | gives windows tagged `omarchy-mode-opened` their frame **from the first frame** (they fade in in place): the empty other half if the focused window is in a half and the other half is empty, else the focused window's frame. Rule `move` is monitor-relative |
+| `omarchy-panel-place <addr>` | ~/.local/bin, from `window.open` | settles new windows after 0.2s with the same logic; honours `$XDG_RUNTIME_DIR/omarchy-place-full` (Cmd+Shift+N) and `omarchy-place-stack` (Cmd+T in Firefox) markers |
+| `omarchy-new-window [--full\|--stack]` | ~/.local/bin | Cmd+N new window of the focused app; `--full` fills the workspace; `--stack` always on the focused stack |
+| Cmd+T | hypr/bindings.lua | Firefox: `omarchy-new-window --stack` (tabs are off). Other apps: Ctrl+T (Ctrl+Shift+T in terminals) |
+| `omarchy-pane-cycle` | ~/.local/bin | Cmd+Tab / Cmd+Shift+Tab: next/previous pane on all displays, wrapping; one pane = rotate its stack |
+| `omarchy-stack-cycle` | ~/.local/bin | Option+Tab (+Shift) and Cmd+`: the pane's stack |
+| `omarchy-pane-focus` | ~/.local/bin | Cmd+arrows: pane that way; past the edge, workspace ±1 within the display's block |
+| `omarchy-snap-dir` | ~/.local/bin | Ctrl+Option+Left/Right snap halves (again = next display's nearer half); Up/Down only move to the display that way, same panel (no top/bottom halves) |
+| `omarchy-panel-drop` | ~/.local/bin | Cmd+drag release: onto a window = its stack; to another display = same panel; else half under pointer, top edge = full |
+| `omarchy-window-to-next-display` | ~/.local/bin | used by the Cmd+K pane menu |
+| Stack dots | plugins/bradgessler-stacks/ | dots under each stack of 2+ in the bottom band; panels covered by a newer window keep dim dots and the covering one gets a center dot; click = bring to front |
+| Workspaces | hypr/input.lua `keep_workspaces()` | five persistent workspaces per display, pinned to it (Omarchy gives each display ids in blocks of ten: laptop 1-10, next 11-20) |
+
+## Menus
+
+| Piece | Where | What |
+|---|---|---|
+| Spotlight, Cmd+Space | plugins/bradgessler.menu/ (clone of omarchy.menu; the shell routes omarchy.menu summons to it) | the **system** menu: Go… search, rows left, `StatusGrid.qml` column right (Wi-Fi, Bluetooth, Power, Sound, Weather, Updates). Typed URL → first row opens it; other text → web search row. Hides the Cmd+K menus from its list and search (`paneMenuIds`) |
+| Cmd+K | `omarchy-pane-menu` → summon with `{menu, anchor}` | the **app in front**: card centered over the focused pane, only that pane dims, no status column, fuzzy search (subsequence fallback in `MenuModel.matchesQuery`). Menus live in `~/.config/omarchy/extensions/omarchy-menu.jsonc`: `app-firefox` (address bar, back, console, …) and `pane` (pane moves) for everything else. Name app menus `app-<class>`: a bare `firefox` id collides with the Firefox app entry and falls back to Spotlight |
+| `omarchy-send-shortcut "MODS" KEY` | ~/.local/bin | how app-menu rows press the app's own shortcut after the menu hands focus back |
+| `omarchy-bands black\|clear` | ~/.local/bin, state ~/.config/omarchy/bands | black bars (hardware look, Spotlight dims between them) or clear over the wallpaper. Currently clear |
+
+## Firefox
+
+Files: `~/.config/mozilla/firefox/fo6dm8yb.default-release/{user.js,chrome/userChrome.css,chrome/userContent.css}`,
+mirrored in `~/.config/omarchy/firefox-webapp/`. Theme colours come from
+`~/.config/omarchy/themed/firefox.css.tpl` (`omarchy-theme-refresh`).
+DuckDuckGo default and uBlock Origin Lite are force-installed through
+`/etc/firefox/policies/policies.json` (pkexec; Adaptive Tab Bar Colour is set to
+`blocked`). All of it needs a Firefox restart (`about:profiles` → Restart normally
+keeps tabs; quitting doesn't restore them).
+
+- No toolbars, no tabs (prefs open windows instead), no link previews, no
+  suggestions list (inline autofill only), blank new tabs, no Mozilla data notice.
+- The address is a pill centered at the bottom over the page: full for 3s after
+  each load, then faint (0.22, never gone, anti-spoofing), full on hover, full
+  with a warm border on insecure pages. `userContent.css` adds 64px after each
+  page so scrolling clears it. Firefox can't blur web content behind chrome.
+- Brad rejected, in order: page-colour tint ("looks like assholes"), a top
+  overlay/autohide bar, a click-through pill, a full-width address, slide-in.
+
+## Testing
+
+- **Never send synthetic keystrokes (wtype, send_key_state) while Brad is
+  working**: they land in his focused window. Don't pop menus on his screen to
+  test without a reason; ask or let him try.
+- Stage UI on the laptop's empty workspace 3 with throwaway windows and a
+  throwaway Firefox profile (copy user.js + chrome/ into a scratch dir, run
+  `firefox --new-instance --profile <dir> <url>`), refocus Brad's window right
+  away, close everything after. Park the pointer on the other display before
+  `grim`; focus changes warp it.
+- Cursor warps don't trigger :hover in Firefox; verify hover states by forcing
+  them in the throwaway profile's CSS.
+- `hyprctl eval` runs Lua silently, `hyprctl repl` prints. `hyprctl dispatch`
+  takes Lua. After hypr edits: `hyprctl reload && hyprctl configerrors`.
+- Plugin QML changes need `omarchy restart shell`; the menu may not open for a
+  few seconds after, so retry.
+- `omarchy-new-window` opens a window of the *focused* app; focus a terminal first.
+
+## Things that crash or bite
+
+- **Never resize or move a window in `window.open_early`**: it segfaults Hyprland
+  (`Layout::CSpace::resizeTarget`); two crashes drop the session into safe mode.
+- Window-rule `move` is relative to the monitor; subtract its origin.
+- An open `omarchy-menu` layer blocks focus changes: `omarchy-menu close`.
+- `pkill -f` from the Bash tool kills its own shell; use `pkill -x` or hyprctl close.
+- `hyprctl clients` order isn't z-order; use `focusHistoryID` (0 = front).
+- Never edit `/usr/share/omarchy/`; clone plugins with `omarchy plugin clone`.
+- If a workspace turns tiled (`~/.local/state/omarchy/workspace-layouts/<n>.lua`
+  says scrolling/dwindle), toggle it with `omarchy-hyprland-workspace-layout-toggle`
+  then `hyprctl eval 'o.workspace_mode({ workspace = "N", mode = "floating" })'`.
+- The UltraFine runs 3840x2160 @1.5 in `monitors.lua`: native 5K is two tiles and
+  Asahi drives one. Its USB (brightness, camera) needs Thunderbolt PCIe
+  tunnelling, which m1n1/kernel don't set up ("PCIe-C is not initialized"); no
+  brightness control from Linux. Brad has no macOS; don't suggest it.
+- Touch ID enrollment fails in the experimental SEP driver ("capture ended
+  without a frame"); password works.
+
+## Memory
+
+Preferences and history: `~/.claude/projects/-home-bradgessler-Work/memory/`
+(`user-omarchy-setup-preferences.md`, `omarchy-customizations-made.md`,
+`no-synthetic-typing-while-user-active.md`), tracked in the repo.

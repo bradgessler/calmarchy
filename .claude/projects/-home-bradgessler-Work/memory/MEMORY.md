@@ -1,0 +1,3 @@
+- [Brad's Omarchy setup and preferences](user-omarchy-setup-preferences.md) — M2 Air; calm Monokai, Inter UI, macOS-like floating windows with minimal chrome, click not hover; apply fixes, don't ask menus
+- [Omarchy customizations, current state](omarchy-customizations-made.md) — keybindings, snap/stack/pane scripts, black notch bar, stack-dot and tray plugins, Firefox setup, gotchas
+- [No synthetic typing while Brad is active](no-synthetic-typing-while-user-active.md) — wtype tests land in his focused window; verify other ways or ask

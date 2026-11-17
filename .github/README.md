@@ -112,4 +112,9 @@ dotfiles commit -m "Tweak bindings"
 | `.config/omarchy/themes/monokai/` | the theme |
 | `.config/omarchy/shell.json` | bar layout and shell settings |
 | `.config/mozilla/firefox/*/` | `user.js` and `userChrome.css` |
-| `.claude/skills/brad-desktop/` | notes for Claude Code on how all this fits together |
+| `.claude/skills/calmarchy/` | the guide Claude Code reads before changing anything |
+| `.claude/projects/-home-bradgessler-Work/memory/` | preferences and history: what was tried, what stuck, what Brad rejected |
+
+## Developing Calmarchy
+
+I build this with [Claude Code](https://claude.com/claude-code), and the repo carries what it needs to pick up where it left off. The `calmarchy` skill explains how the pieces fit, how to test without breaking the session, and the gotchas. The memory notes hold my preferences and every idea that was tried and thrown out. Open Claude Code in your home folder and describe the change. It commits each change with `dotfiles` and pushes here.
