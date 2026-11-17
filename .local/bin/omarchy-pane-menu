@@ -1,15 +1,14 @@
 #!/bin/bash
 # Cmd+K: the menu for the app in front. Spotlight's card opens over that app's
 # pane, only that pane dims, and typing fuzzy-searches the app's actions plus
-# the pane moves. Apps with their own menu ("firefox" in
-# ~/.config/omarchy/extensions/omarchy-menu.jsonc) get it; others get "pane".
+# the pane moves. An app with its own menu ("app-<class>" in
+# ~/.config/omarchy/extensions/omarchy-menu.jsonc) gets it; others get "pane".
 win=$(hyprctl -j activewindow)
 [[ $(jq -r '.address // empty' <<<"$win") ]] || exec omarchy-menu summon root
 class=$(jq -r '.class' <<<"$win")
-case $class in
-  firefox) menu=app-firefox ;;
-  *) menu=pane ;;
-esac
+# An app's own menu is "app-<class>" (lowercase) in the menu extensions file.
+menu=app-${class,,}
+grep -q "\"$menu\":" "$HOME/.config/omarchy/extensions/omarchy-menu.jsonc" 2>/dev/null || menu=pane
 # The pane's rectangle on its own display, in that display's coordinates.
 anchor=$(hyprctl -j monitors | jq -c --argjson w "$win" '
   .[] | select(.id == $w.monitor)

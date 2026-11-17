@@ -22,7 +22,7 @@ It isn't a fork, just an idea: a set of config files, scripts and shell plugins 
 
 ![Spotlight](screenshots/spotlight.png)
 
-**Cmd+K: the app in front.** Panes are just content; their chrome lives here. Cmd+K dims only the pane you're in and opens a small menu over it, with fuzzy search over that app's actions plus the pane moves (halves, full screen, other display, next in stack, new window, close). In Firefox that's the address bar, back, forward, reload, find, console, inspector, history, bookmarks, downloads and the rest.
+**Cmd+K: the app in front.** Panes are just content; their chrome lives here. Cmd+K dims only the pane you're in and opens a small menu over it, with fuzzy search over that app's actions plus the pane moves (halves, full screen, other display, next in stack, new window, close). In Firefox that's the address bar, back, forward, reload, find, console, inspector, history, bookmarks, downloads and the rest; in Signal it's new message, search, next chat, attach, settings and so on, with Signal's own File/Edit/View bar hidden. Adding an app is a few lines in `~/.config/omarchy/extensions/omarchy-menu.jsonc`.
 
 ![Cmd+K over Firefox](screenshots/cmd-k.png)
 

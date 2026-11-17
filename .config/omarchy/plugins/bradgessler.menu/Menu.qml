@@ -22,12 +22,10 @@ Item {
   property var paneAnchor: null
   // App and pane menus live in the menu tree but belong to Cmd+K, so
   // Spotlight's own list and search leave them out.
-  readonly property var paneMenuIds: ["pane", "app-firefox"]
+  // "pane" and every "app-<class>" menu (omarchy-pane-menu picks by class).
   function inPaneMenu(id) {
-    for (var i = 0; i < paneMenuIds.length; i++) {
-      if (id === paneMenuIds[i] || root.isDescendantOf(id, paneMenuIds[i])) return true
-    }
-    return false
+    var top = String(id || "").split(".")[0]
+    return top === "pane" || top.indexOf("app-") === 0
   }
 
   function open(payloadJson) {
