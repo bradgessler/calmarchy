@@ -81,3 +81,8 @@ local function no_titlebars()
 end
 no_titlebars()
 hl.on("config.reloaded", no_titlebars)
+
+-- Cursor the size of macOS's default pointer (Omarchy's 24 read a bit big).
+-- The env reaches apps started after login; setcursor and gsettings apply now.
+hl.env("XCURSOR_SIZE", "20")
+hl.env("HYPRCURSOR_SIZE", "20")
