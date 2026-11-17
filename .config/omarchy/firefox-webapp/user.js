@@ -39,3 +39,12 @@ user_pref("browser.urlbar.formatting.enabled", true);
 user_pref("browser.urlbar.trimHttps", true);
 // No "Firefox automatically sends some data to Mozilla" notice bar.
 user_pref("datareporting.policy.dataSubmissionPolicyBypassNotification", true);
+// No tabs: anything that would open a tab opens a window instead (pages'
+// new-tab links, middle-click, links from other apps). Cmd+T is rebound in
+// Hyprland to open a window too. Windows stack in the pane.
+user_pref("browser.link.open_newwindow", 2);
+user_pref("browser.link.open_newwindow.restriction", 0);
+user_pref("browser.link.open_newwindow.override.external", 2);
+user_pref("browser.tabs.opentabfor.middleclick", false);
+user_pref("browser.tabs.closeWindowWithLastTab", true);
+user_pref("browser.tabs.warnOnClose", false);

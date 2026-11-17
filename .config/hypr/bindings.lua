@@ -97,8 +97,12 @@ local function send_shortcut_once(mods, key)
     hl.dispatch(hl.dsp.send_key_state({ mods = mods, key = key, state = "up" }))
   end, { timeout = 50, type = "oneshot" })
 end
-o.rebind("SUPER + T", "New tab", function()
+o.rebind("SUPER + T", "New tab (Firefox: new window, no tabs)", function()
   local window = hl.get_active_window()
+  -- Firefox has no tabs here: Cmd+T opens a window, which stacks in the pane.
+  if window and window.class == "firefox" then
+    return hl.exec_cmd("omarchy-new-window")
+  end
   for _, tag in ipairs((window and window.tags) or {}) do
     if tag:gsub("%*$", "") == "terminal" then
       return send_shortcut_once("CTRL SHIFT", "T")
