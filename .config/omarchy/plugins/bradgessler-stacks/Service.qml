@@ -167,7 +167,10 @@ Item {
       readonly property int workspaceId: monitor && monitor.activeWorkspace ? monitor.activeWorkspace.id : -1
       readonly property int monitorX: ipc ? ipc.x : 0
       // The bottom letterbox band's height (its reserved edge).
-      readonly property int bandHeight: ipc && ipc.reserved && ipc.reserved[3] > 0 ? ipc.reserved[3] : 32
+      // The strip is the pane gap under the windows (no bottom band any more),
+      // so indicators sit centered in the same 8pt margin the panes have
+      // between them and at the sides.
+      readonly property int bandHeight: root.gap
       HoverHandler { id: bandHover }
 
       // Drawn over the black bottom band, under the stacks. Reserves nothing.
@@ -180,7 +183,7 @@ Item {
       exclusionMode: ExclusionMode.Ignore
       exclusiveZone: 0
       anchors { bottom: true; left: true; right: true }
-      implicitHeight: Math.max(8, bandHeight)
+      implicitHeight: bandHeight
 
       Repeater {
         model: root.stacks.filter(function(s) { return s.ws === strip.workspaceId })
@@ -190,11 +193,13 @@ Item {
           required property var modelData
           spacing: 0
 
+          // No backdrop pill: in the 8pt margin it butted against the window
+          // edge. The bars float alone, centered between window and screen edge.
           Rectangle {
-            visible: root.clearBands
+            visible: false
             parent: dots.parent
             z: -1
-            x: dots.x - 6; width: dots.width + 12
+            x: dots.x - 4; width: dots.width + 8
             height: strip.height; radius: height / 2
             anchors.verticalCenter: parent.verticalCenter
             color: Qt.rgba(0, 0, 0, 0.38)
@@ -211,11 +216,12 @@ Item {
             Item {
               id: hit
               required property var modelData
-              width: 12; height: strip.height
+              width: 18; height: strip.height
 
               Rectangle {
                 anchors.centerIn: parent
-                width: 6; height: 6; radius: 3
+                // Thin rounded bars, centered in the 8pt margin under the pane.
+                width: 14; height: 3; radius: 1.5
                 antialiasing: true
                 color: Color.bar.text
                 // The window that just came to the front: its dot fades up, then

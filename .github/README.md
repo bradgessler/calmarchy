@@ -14,7 +14,7 @@ It isn't a fork, just an idea: a set of config files, scripts and shell plugins 
 
 ![Moving between panes and stacks](screenshots/panes.gif)
 
-**Stack indicators.** A slim band along the bottom of each display, about as tall as the gap between panes, shows a dot for every window in a stack. When a full-screen window covers other panes, their dots stay (dimmed) and the full-screen window gets one in the middle. They sit faint; when you switch, the dot for the window that just came forward fades up, then settles. Hovering the band lifts them so you can pick one. Click any dot to bring that window to the front.
+**Stack indicators.** Panes have the same 8pt margin all around: at the sides, between them and along the bottom. A thin bar for every window in a stack floats in the middle of that bottom margin, under its pane. When a full-screen window covers other panes, their dots stay (dimmed) and the full-screen window gets one in the middle. They sit faint; when you switch, the dot for the window that just came forward fades up, then settles. Hovering the band lifts them so you can pick one. Click any dot to bring that window to the front.
 
 ![Stack dots under a full-screen window](screenshots/stack-dots.png)
 
@@ -40,7 +40,7 @@ The address floats in a small pill at the bottom center. Each time a page loads 
 
 DuckDuckGo is the default search, uBlock Origin Lite blocks ads using only built-in rules (no downloaded lists), new tabs are blank, typing an address fills in inline instead of popping up suggestions, link previews are off, and trackpad scrolling has a Mac-like glide. Tabs are off: Cmd+T opens a new window right on the stack you're in, and links that would open a tab (or middle-clicks) open a window too.
 
-**Quiet top bar.** Workspaces on the left, battery % and date on the right, nothing else. The top bar and the bottom dot band can be black (they blend into the notch, like part of the hardware) or clear over the wallpaper: Spotlight → Trigger → Toggle → Clear/Black Bars, or `omarchy-bands clear|black`.
+**Quiet top bar.** Workspaces on the left, battery % and date on the right, nothing else. The top bar can be black (it blends into the notch, like part of the hardware) or clear over the wallpaper: Spotlight → Trigger → Toggle → Clear/Black Bars, or `omarchy-bands clear|black`.
 
 **Multiple displays.** Each display has its own five workspaces, and trackpad swipes work on each. Moving a window to another display keeps its pane: a full-screen window stays full screen, and a left half lands in the left half.
 
