@@ -47,7 +47,7 @@ windows in the same panel. No tabs, no Hyprland groups.
 | `omarchy-snap-dir` | ~/.local/bin | Ctrl+Option+Left/Right snap halves (again = next display's nearer half); Up/Down only move to the display that way, same panel (no top/bottom halves) |
 | `omarchy-panel-drop` | ~/.local/bin | Cmd+drag release: onto a window = its stack; to another display = same panel; else half under pointer, top edge = full |
 | `omarchy-window-to-next-display` | ~/.local/bin | used by the Cmd+K pane menu |
-| Stack dots | plugins/bradgessler-stacks/ | dots under each stack of 2+ in the bottom band, faint at rest (front 0.4, others 0.16), bright for 1.6s after any switch and while the band is hovered; panels covered by a newer window keep dim dots and the covering one gets a center dot; click = bring to front |
+| Stack dots | plugins/bradgessler-stacks/ | dots under each stack of 2+ in the bottom band, faint at rest (front 0.4, others 0.16); on any switch the new front dot fades up to 0.9 for 1.6s then settles; hovering the band lifts the others to 0.3; panels covered by a newer window keep dim dots and the covering one gets a center dot; click = bring to front |
 | Workspaces | hypr/input.lua `keep_workspaces()` | five persistent workspaces per display, pinned to it (Omarchy gives each display ids in blocks of ten: laptop 1-10, next 11-20) |
 
 ## Menus
