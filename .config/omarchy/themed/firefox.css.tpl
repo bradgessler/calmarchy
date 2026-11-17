@@ -6,12 +6,6 @@
 :root {
   --toolbarbutton-hover-background: {{ selection }} !important;
   --toolbarbutton-active-background: {{ muted }} !important;
-  --toolbar-field-background-color: {{ dark_background }} !important;
-  --toolbar-field-border-color: {{ lighter_background }} !important;
-  --toolbar-field-focus-background-color: {{ dark_background }} !important;
-  --toolbar-field-focus-border-color: {{ muted }} !important;
-  --urlbar-box-bgcolor: {{ selection }} !important;
-  --urlbar-box-hover-bgcolor: {{ muted }} !important;
   --arrowpanel-background: {{ background }} !important;
   --arrowpanel-color: {{ foreground }} !important;
   --arrowpanel-border-color: {{ muted }} !important;
@@ -43,7 +37,7 @@
 #urlbar[focused] > #urlbar-background,
 #urlbar[focused="true"] > #urlbar-background,
 #urlbar:focus-within > #urlbar-background {
-  border-color: {{ muted }} !important;
+  border-color: rgba(127, 127, 127, 0.45) !important;
   box-shadow: none !important;
   outline: none !important;
 }
