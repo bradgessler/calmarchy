@@ -154,3 +154,11 @@
    address in place (Tab or Right accepts, Return goes); the pill stays one
    line. History and bookmarks are in Cmd+K. */
 #urlbar .urlbarView { display: none !important; }
+
+/* Not secure: the pill stays up (no fading) on plain http, certificate
+   errors and secure pages loading insecure content, with a warm border. */
+:root:has(#identity-box:is(.notSecure, .notSecureText, .certErrorPage, .mixedActiveContent, .weakCipher)) #navigator-toolbox {
+  opacity: 1;
+  border-color: rgba(253, 151, 31, 0.55) !important;
+  transition: opacity 180ms ease-out 0s !important;
+}
