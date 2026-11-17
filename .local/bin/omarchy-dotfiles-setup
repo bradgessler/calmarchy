@@ -48,12 +48,7 @@ jq '.policies.SearchEngines = {"Default": "DuckDuckGo"}
 sudo install -D -m 644 "$tmp" /etc/firefox/policies/policies.json
 rm -f "$tmp"
 
-say "Signal: hide its menu bar (its actions are in Cmd+K)"
-sig="$HOME/.config/Signal/ephemeral.json"
-if [[ -f $sig ]]; then
-  tmp=$(mktemp); jq '.window.autoHideMenuBar = true' "$sig" >"$tmp" && mv "$tmp" "$sig"
-  echo "   (restart Signal to apply)"
-fi
+say "Signal: turn on Settings > General > Hide menu bar yourself (its actions are in Cmd+K)"
 
 say "Theme (Monokai, misty forest wallpaper)"
 omarchy theme set monokai >/dev/null 2>&1 || true
