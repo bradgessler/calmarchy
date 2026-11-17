@@ -55,10 +55,12 @@
 -- })
 
 -- Omarchy disables the workspace animation, which makes trackpad swipes snap
--- with no follow-through. Re-enable it with a decelerating curve for an
--- inertial, macOS-style release.
-hl.curve("swipeOut", { type = "bezier", points = { { 0.1, 0.9 }, { 0.2, 1.0 } } })
-hl.animation({ leaf = "workspaces", enabled = true, speed = 5, bezier = "swipeOut", style = "slide" })
+-- with no follow-through. Re-enable it with a gentle ease-out (easeOutCubic,
+-- 450ms) for a macOS Spaces-like settle. The first curve, (0.1, 0.9)/(0.2, 1),
+-- covered ~90% of the screen in the first instant, which read as far too fast,
+-- worst on the 2560pt-wide UltraFine.
+hl.curve("swipeOut", { type = "bezier", points = { { 0.33, 1.0 }, { 0.68, 1.0 } } })
+hl.animation({ leaf = "workspaces", enabled = true, speed = 4.5, bezier = "swipeOut", style = "slide" })
 
 -- Calm the focused-window border: a thin, muted outline instead of the theme accent.
 hl.config({
