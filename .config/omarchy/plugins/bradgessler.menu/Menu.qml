@@ -1602,14 +1602,32 @@ Item {
 
                 Text {
                   id: labelText
+                  // Pickers like Keybindings pad "<keys>   → <action>" with
+                  // spaces for a monospace font, which drifts in Inter. Split
+                  // such labels into a fixed key column and the action.
+                  readonly property var columns: row.kind === "dmenu" ? /^(\S.*?)\s+→\s+(.*)$/.exec(row.label) : null
+                  readonly property int keyColumnWidth: Style.space(210)
                   textFormat: Text.PlainText
-                  width: parent.width
-                  text: row.label
+                  width: columns ? Math.min(keyColumnWidth - Style.space(8), parent.width) : parent.width
+                  text: columns ? columns[1] : row.label
                   color: row.hasCursor ? root.selectedText : root.foreground
                   font.family: root.fontFamily
                   font.pixelSize: Style.font.title
                   font.weight: Font.Medium
                   elide: Text.ElideRight
+
+                  Text {
+                    visible: !!labelText.columns
+                    x: labelText.keyColumnWidth
+                    width: labelText.parent.width - x
+                    textFormat: Text.PlainText
+                    text: labelText.columns ? labelText.columns[2] : ""
+                    color: labelText.color
+                    opacity: 0.75
+                    font.family: root.fontFamily
+                    font.pixelSize: Style.font.title
+                    elide: Text.ElideRight
+                  }
                 }
 
                 Text {
