@@ -133,10 +133,23 @@
    of the pill. */
 #statuspanel[type="status"] { display: none !important; }
 #statuspanel { inset-inline-start: auto !important; inset-inline-end: 10px !important; bottom: 10px !important; }
-#statuspanel-label { border-radius: 8px !important; }
 
 
 /* Inline autocomplete only: no suggestions list. Typing fills the rest of the
    address in place (Tab or Right accepts, Return goes); the pill stays one
    line. History and bookmarks are in Cmd+K. */
 #urlbar .urlbarView { display: none !important; }
+
+/* Link preview styled like the pill: same surface, hairline, corners, shadow,
+   type and inset, in the opposite corner. */
+#statuspanel-label {
+  background-color: var(--toolbar-bgcolor) !important;
+  color: var(--toolbar-color) !important;
+  border: 1px solid var(--toolbar-field-border-color, rgba(127,127,127,.3)) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35) !important;
+  padding: 6px 10px !important;
+  font-size: 12px !important;
+  opacity: 0.9 !important;
+  margin: 0 !important;
+}
