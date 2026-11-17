@@ -109,7 +109,6 @@
   opacity: 1;
 }
 #browser, #customization-container { margin-top: 0 !important; }
-#urlbar[breakout][breakout-extend] { top: auto !important; bottom: 0 !important; }
 
 /* The loading shimmer. */
 #navigator-toolbox::after {
@@ -138,3 +137,19 @@
 #statuspanel[type="status"] { display: none !important; }
 #statuspanel { inset-inline-start: auto !important; inset-inline-end: 10px !important; bottom: 10px !important; }
 #statuspanel-label { border-radius: 8px !important; }
+
+/* Suggestions open upward from the pill (it sits at the bottom of the pane),
+   and may spill out of the pill's rounded box while open. */
+:root:has(#urlbar[open]) #navigator-toolbox { overflow: visible !important; }
+#urlbar[open] {
+  top: auto !important;
+  bottom: 0 !important;
+  display: flex !important;
+  flex-direction: column-reverse !important;
+}
+#urlbar[open] > .urlbarView {
+  margin-block: 0 6px !important;
+  border-radius: 8px !important;
+  box-shadow: 0 -4px 18px rgba(0, 0, 0, 0.35) !important;
+}
+#urlbar[open] .urlbarView-body-outer { max-height: 50vh !important; overflow-y: auto !important; }
