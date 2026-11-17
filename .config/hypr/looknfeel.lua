@@ -69,8 +69,7 @@ hl.config({
     col = {
       -- 1pt is Hyprland's floor (2 physical px on Retina), so soften it to read as a hairline.
       -- The same faint hairline on every window, just enough to define its
-      -- edge (none at all looked weird). It doesn't signal focus; the active
-      -- window's shadow does.
+      -- edge (none at all looked weird). Not a focus signal.
       active_border = "rgba(ffffff1f)",
       inactive_border = "rgba(ffffff1f)",
     },
@@ -82,18 +81,15 @@ hl.config({
   },
 })
 
--- No title bars on floating windows, and a shadow only on the active one (like
--- macOS's focused window): small, soft, no offset. Every window having Omarchy's
--- 16pt shadow overlapped into a grey smudge in the 8pt gaps. Omarchy's floating
--- mode resets both after user config loads, so reapply once every reload settles.
+-- No title bars and no shadows on floating windows. Omarchy's 16pt shadows on
+-- every window smudged the 8pt gaps; an active-window-only shadow jittered as
+-- windows moved and popped on focus changes. Omarchy's floating mode turns both
+-- back on after user config loads, so reapply once every reload settles.
 local function no_titlebars()
   hl.config({ plugin = { hyprbars = { enabled = false } } })
-  hl.config({ decoration = { shadow = {
-    enabled = true, range = 18, render_power = 3, offset = "0 4",
-    color = "rgba(00000073)", color_inactive = "rgba(00000000)",
-  } } })
+  hl.config({ decoration = { shadow = { enabled = false } } })
   -- No dimming of inactive windows: it shifts their colours (comparing two
-  -- photos side by side would be wrong). Focus is the shadow.
+  -- photos side by side would be wrong).
   hl.config({ decoration = { dim_inactive = false } })
 end
 no_titlebars()
