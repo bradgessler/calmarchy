@@ -68,11 +68,11 @@ hl.config({
     border_size = 1,
     col = {
       -- 1pt is Hyprland's floor (2 physical px on Retina), so soften it to read as a hairline.
-      -- No visible window borders (Brad: borders suck on windows); they stay
-      -- 1pt and transparent so grabbing the edge still resizes. Focus is the
-      -- active window's shadow.
-      active_border = "rgba(00000000)",
-      inactive_border = "rgba(00000000)",
+      -- The same faint hairline on every window, just enough to define its
+      -- edge (none at all looked weird). It doesn't signal focus; the active
+      -- window's shadow does.
+      active_border = "rgba(ffffff1f)",
+      inactive_border = "rgba(ffffff1f)",
     },
   },
   -- Slight rounding (3pt): just takes the edge off. Brad rejected 6 as too
