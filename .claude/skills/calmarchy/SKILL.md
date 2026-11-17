@@ -69,6 +69,7 @@ DuckDuckGo default and uBlock Origin Lite are force-installed through
 `blocked`). All of it needs a Firefox restart (`about:profiles` → Restart normally
 keeps tabs; quitting doesn't restore them).
 
+- Web apps (X) are plain windows of the main Firefox (`firefox --new-window <url>` in the .desktop), not separate profiles: the per-site profile (`omarchy-firefox-webapp`) lost X's login cookie on close and has no 1Password. Desktop `Exec=` can't contain `$HOME` (quickshell rejects it).
 - No toolbars, no tabs (prefs open windows instead), no link previews, no
   suggestions list (inline autofill only), blank new tabs, no Mozilla data notice.
 - The address is a pill centered at the bottom over the page: full for 3s after
