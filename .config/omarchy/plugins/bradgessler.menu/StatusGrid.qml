@@ -31,7 +31,7 @@ Item {
     if (index >= 0 && index < tiles.length) activated(tiles[index].command)
   }
 
-  property int rowHeight: Style.space(44)
+  property int rowHeight: Style.space(36)
   property int rowSpacing: Style.spacing.xs
 
   implicitHeight: tiles.length * rowHeight + (tiles.length - 1) * rowSpacing

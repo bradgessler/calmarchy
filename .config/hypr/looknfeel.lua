@@ -95,3 +95,8 @@ hl.env("HYPRCURSOR_SIZE", "20")
 -- 87% scale. popin 100% means no scaling, so only the fade shows.
 hl.animation({ leaf = "windowsIn", enabled = true, speed = 1.5, bezier = "easeOutQuint", style = "popin 100%" })
 hl.animation({ leaf = "fadeIn", enabled = true, speed = 1.5, bezier = "easeOutQuint" })
+
+-- Sharp text in the shell (and other Qt Quick apps): native, hinted glyphs
+-- instead of Qt Quick's distance-field text, which looks soft at menu sizes,
+-- worst at the UltraFine's 1.5x.
+hl.env("QML_DISABLE_DISTANCEFIELD", "1")

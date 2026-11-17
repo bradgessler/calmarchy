@@ -163,8 +163,9 @@ countdown        = "{{ accent }}"
 background                = "{{ background }}"
 background-alpha          = 0.95
 text                      = "{{ foreground }}"
-border                    = "hyprland.active-border-foreground"
-border-alpha              = 1.0
+# A faint hairline: the dimmed screen already sets the card apart.
+border                    = "{{ foreground }}"
+border-alpha              = 0.12
 scrim                     = "{{ background }}"
 scrim-alpha               = 0.5
 selected-background       = "{{ foreground }}"
@@ -180,8 +181,9 @@ selected-border-alpha     = 0.25
 background                = "{{ background }}"
 background-alpha          = 1.0
 text                      = "{{ foreground }}"
-border                    = "hyprland.active-border-foreground"
-border-alpha              = 1.0
+# A faint hairline: the dimmed screen already sets the card apart.
+border                    = "{{ foreground }}"
+border-alpha              = 0.12
 scrim                     = "{{ background }}"
 scrim-alpha               = 0.5
 selected-background       = "{{ foreground }}"
