@@ -1,0 +1,12 @@
+#!/bin/bash
+# Move the active window to the next display, keeping its panel (full stays
+# full, a left half lands in the left half). Used by the Cmd+K pane menu.
+win=$(hyprctl -j activewindow); addr=$(jq -r '.address // empty' <<<"$win")
+[[ -n $addr ]] || exit 0
+panel=$(omarchy-snap --frame-of "$addr") || panel=full
+next=$(hyprctl -j monitors | jq -r --argjson id "$(jq '.monitor' <<<"$win")" \
+  'sort_by(.id) | (map(.id) | index($id)) as $i | .[(($i + 1) % length)].name')
+hyprctl dispatch "hl.dsp.window.move({ monitor = \"$next\", window = \"address:$addr\" })" >/dev/null
+sleep 0.05
+omarchy-snap "$panel" "$addr"
+hyprctl dispatch "hl.dsp.focus({ window = \"address:$addr\" })" >/dev/null

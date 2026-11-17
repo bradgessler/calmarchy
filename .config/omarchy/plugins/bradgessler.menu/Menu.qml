@@ -19,6 +19,16 @@ Item {
   // Plugin lifecycle hooks. The host calls open(payloadJson) after
   // `omarchy-shell shell summon omarchy.menu ...` and close() when hidden.
   property string pendingInitialMenu: "root"
+  property var paneAnchor: null
+  // App and pane menus live in the menu tree but belong to Cmd+K, so
+  // Spotlight's own list and search leave them out.
+  readonly property var paneMenuIds: ["pane", "app-firefox"]
+  function inPaneMenu(id) {
+    for (var i = 0; i < paneMenuIds.length; i++) {
+      if (id === paneMenuIds[i] || root.isDescendantOf(id, paneMenuIds[i])) return true
+    }
+    return false
+  }
 
   function open(payloadJson) {
     var payload = ({})
@@ -28,6 +38,10 @@ Item {
     // A shell that started mid-update may never have read the shipped menu
     // whole; reading it again here keeps the menu from opening empty.
     if (root.defaultMenuItems.length === 0) defaultMenuFile.reload()
+
+    // Cmd+K (omarchy-pane-menu) passes the front window's rectangle: the card
+    // opens over that pane and only that pane dims.
+    root.paneAnchor = payload.anchor && payload.anchor.w > 0 ? payload.anchor : null
 
     if (payload.mode === "select" || payload.mode === "input") {
       root.openDmenu(payload)
@@ -143,7 +157,7 @@ Item {
   property int cardWidth: Math.min(root.dmenuActive ? Style.space(root.dmenuWidth) : ((root.activeMenu === "trigger.capture.screenrecord" || root.activeMenu === "appearance.font" || root.activeMenu === "update.kernel") ? Style.space(520) : Style.space(300)) + root.statusExtraWidth, panel.width - Style.gapsOut * 2)
   // Status column to the right of the menu rows (StatusGrid.qml), on every
   // regular menu page; dmenu pickers keep their single column.
-  readonly property bool statusVisible: !root.dmenuActive
+  readonly property bool statusVisible: !root.dmenuActive && !root.paneAnchor
   readonly property int statusWidth: Style.space(300)
   readonly property int statusGutter: Style.space(17)
   readonly property int statusExtraWidth: statusVisible ? statusWidth + statusGutter : 0
@@ -751,6 +765,7 @@ Item {
         var entry = root.item(root.itemOrder[i])
         if (!entry || entry.id === "root") continue
         if (!root.isDescendantOf(entry.id, active)) continue
+        if (active === "root" && root.inPaneMenu(entry.id)) continue
         if (!root.matchesQuery(entry, query)) continue
 
         var detail = root.parentPathFor(entry.id)
@@ -784,13 +799,16 @@ Item {
         detail: url ? "Browser" : "DuckDuckGo", path: "", childCount: 0, action: "",
         provider: "", score: -1, section: ""
       }
-      if (url || rows.length === 0) rows.unshift(webRow)
-      else rows.push(webRow)
+      if (active === "root" || active === "app-firefox") {
+        if (url || rows.length === 0) rows.unshift(webRow)
+        else rows.push(webRow)
+      }
     } else {
       for (var j = 0; j < root.itemOrder.length; j++) {
         var child = root.item(root.itemOrder[j])
         if (!child || child.parent !== active) continue
         if (!root.isVisible(child)) continue
+        if (active === "root" && root.inPaneMenu(child.id)) continue
         rows.push(root.displayRow(child, child.description, child.order))
       }
 
@@ -1329,7 +1347,9 @@ Item {
     // card may grow from there. Closing or changing screens unfreezes both.
     property int cardTop: -1
     property int maxRowsHeight: -1
-    readonly property int centeredTop: Math.max(Style.gapsOut, Math.round((height - root.cardHeight) / 2))
+    readonly property int centeredTop: root.paneAnchor
+      ? Math.max(Style.gapsOut, Math.round(root.paneAnchor.y + Math.max(Style.gapsOut, (root.paneAnchor.h - root.cardHeight) / 3)))
+      : Math.max(Style.gapsOut, Math.round((height - root.cardHeight) / 2))
     readonly property int effectiveCardTop: cardTop >= 0 ? cardTop : centeredTop
     function freezeCardTop() {
       if (shown && cardTop < 0) {
@@ -1356,9 +1376,20 @@ Item {
     readonly property var hyprMonitor: panel.screen ? Hyprland.monitorFor(panel.screen) : null
     readonly property var reserved: hyprMonitor && hyprMonitor.lastIpcObject ? hyprMonitor.lastIpcObject.reserved : null
     Rectangle {
+      visible: !root.paneAnchor
       anchors.fill: parent
       anchors.topMargin: panel.clearBands ? 0 : (panel.reserved ? panel.reserved[1] : 32)
       anchors.bottomMargin: panel.clearBands ? 0 : (panel.reserved ? panel.reserved[3] : 32)
+      color: root.scrim
+    }
+    // Cmd+K: only the app's pane dims.
+    Rectangle {
+      visible: !!root.paneAnchor
+      x: root.paneAnchor ? root.paneAnchor.x : 0
+      y: root.paneAnchor ? root.paneAnchor.y : 0
+      width: root.paneAnchor ? root.paneAnchor.w : 0
+      height: root.paneAnchor ? root.paneAnchor.h : 0
+      radius: 3
       color: root.scrim
     }
 
@@ -1372,7 +1403,10 @@ Item {
       width: root.cardWidth
       height: Math.min(root.cardHeight, panel.height - Style.gapsOut - panel.effectiveCardTop)
       radius: root.cornerRadius
-      anchors.horizontalCenter: parent.horizontalCenter
+      // Centered on the pane for Cmd+K, on the screen for Spotlight.
+      x: root.paneAnchor
+        ? Math.round(Math.max(Style.gapsOut, Math.min(parent.width - width - Style.gapsOut, root.paneAnchor.x + (root.paneAnchor.w - width) / 2)))
+        : Math.round((parent.width - width) / 2)
       y: panel.effectiveCardTop
       color: root.background
       borderSpec: root.borderSpec

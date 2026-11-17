@@ -209,6 +209,10 @@ hl.on("window.active", function() panel_open_sync() end)
 hl.window_rule({ name = "panel-open-nomax", match = { tag = "omarchy-mode-opened" }, suppress_event = "maximize" })
 panel_open_sync()
 
--- Super+K opens Spotlight too, same as Super+Space (was: the keybindings list,
--- still reachable by typing "keybindings" in Spotlight).
-o.rebind("SUPER + K", "Spotlight", { menu = "root" })
+-- Cmd+Space is the system's menu (Spotlight); Cmd+K is the menu for the app in
+-- front. omarchy-pane-menu opens it over that app's pane, dims only the pane,
+-- and fuzzy-searches the app's actions plus the pane moves (menus "app-firefox",
+-- "pane" in ~/.config/omarchy/extensions/omarchy-menu.jsonc). Panes are just
+-- content; their chrome lives here. (Was: the keybindings list, still
+-- reachable by typing "keybindings" in Spotlight.)
+o.rebind("SUPER + K", "Menu for the app in front", "omarchy-pane-menu")

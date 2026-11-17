@@ -1,0 +1,10 @@
+#!/bin/bash
+# Press a shortcut in the focused window, after a menu has handed focus back.
+#   omarchy-send-shortcut "CTRL SHIFT" K
+# Down and up are sent separately; Hyprland's one-shot send_shortcut can leave
+# keys stuck (same workaround as Omarchy's clipboard bindings).
+mods=${1?mods}; key=${2:?key}
+sleep "${OMARCHY_SEND_DELAY:-0.15}"
+hyprctl dispatch "hl.dsp.send_key_state({ mods = \"$mods\", key = \"$key\", state = \"down\" })" >/dev/null
+sleep 0.05
+hyprctl dispatch "hl.dsp.send_key_state({ mods = \"$mods\", key = \"$key\", state = \"up\" })" >/dev/null

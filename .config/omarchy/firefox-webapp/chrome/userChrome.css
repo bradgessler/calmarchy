@@ -63,3 +63,17 @@
    site's lock/identity once a page is loaded. */
 #urlbar[pageproxystate="invalid"] #identity-box,
 #urlbar[pageproxystate="invalid"] #identity-icon-box { display: none !important; }
+
+/* URL only (plus the extensions button): the page is content, and the bar
+   just shows where you are. Every other button lives in Cmd+K's Firefox menu
+   ("app-firefox" in ~/.config/omarchy/extensions/omarchy-menu.jsonc). */
+#nav-bar toolbarbutton:not(#unified-extensions-button),
+#nav-bar toolbaritem:not(#urlbar-container),
+#nav-bar toolbarspring, #nav-bar .titlebar-buttonbox-container,
+#PanelUI-button, #fxa-toolbar-menu-button {
+  display: none !important;
+}
+#urlbar-container { margin-inline: 0 !important; max-width: none !important; }
+#nav-bar { padding-inline: 4px !important; }
+#urlbar .urlbar-page-action, #star-button-box, #reader-mode-button,
+#translations-button, #picture-in-picture-button { display: none !important; }

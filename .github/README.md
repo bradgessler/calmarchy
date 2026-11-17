@@ -22,6 +22,8 @@ It isn't a fork, just an idea: a set of config files, scripts and shell plugins 
 
 ![Spotlight](screenshots/spotlight.png)
 
+**Cmd+K: the menu for the app in front.** Panes are just content. Cmd+K dims only the pane you're in and opens a small menu over it with fuzzy search over that app's actions (in Firefox: address bar, back, reload, console, inspector, history, downloads, …) plus pane moves (halves, full screen, other display, next in stack, close). Firefox shows nothing but the URL; its buttons live here.
+
 **Quiet top bar.** Workspaces on the left, battery % and date on the right, nothing else. The top bar and the bottom dot band can be black (they blend into the notch, like part of the hardware) or clear over the wallpaper: Spotlight → Trigger → Toggle → Clear/Black Bars, or `omarchy-bands clear|black`.
 
 **Multiple displays.** Each display has its own five workspaces, and trackpad swipes work on each. Moving a window to another display keeps its pane: a full-screen window stays full screen, and a left half lands in the left half.
@@ -36,7 +38,8 @@ The Mac's Cmd key is Super here.
 
 | Keys | Does |
 |---|---|
-| Cmd+Space / Cmd+K | Spotlight |
+| Cmd+Space | Spotlight (the system) |
+| Cmd+K | menu for the app in front, over its pane |
 | Cmd+Tab / Cmd+Shift+Tab | next / previous pane (all displays) |
 | Option+Tab / Option+Shift+Tab | next / previous window in this pane's stack |
 | Cmd+` | next window in this pane's stack |

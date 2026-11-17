@@ -346,6 +346,14 @@ function descriptionTextMatches(query, text) {
   return true
 }
 
+function isSubsequence(needle, haystack) {
+  var j = 0
+  for (var i = 0; i < haystack.length && j < needle.length; i++) {
+    if (haystack[i] === needle[j]) j++
+  }
+  return j === needle.length
+}
+
 function matchesQuery(entry, query, visible) {
   if (!entry || entry.id === "root") return false
   if (!visible) return false
@@ -358,6 +366,9 @@ function matchesQuery(entry, query, visible) {
     if (!terms[i]) continue
     if (nameText.indexOf(terms[i]) >= 0) continue
     if (termInSearchWords(terms[i], descriptionText)) continue
+    // Fuzzy: the term's letters in order within the name ("dvt" finds
+    // Developer Tools, "rh" Right Half).
+    if (terms[i].length >= 2 && isSubsequence(terms[i], nameText)) continue
     return false
   }
 
