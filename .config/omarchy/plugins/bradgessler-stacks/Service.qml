@@ -206,6 +206,9 @@ Item {
             antialiasing: true
           }
           anchors.verticalCenter: parent.verticalCenter
+          // Optical centering: the window's shadow eats into the top of the
+          // margin, so sit the bars a little low of the measured middle.
+          anchors.verticalCenterOffset: 1.5
           x: Math.round(modelData.centerX - strip.monitorX - width / 2)
 
           Repeater {
