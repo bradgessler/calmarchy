@@ -32,3 +32,6 @@ user_pref("browser.sessionstore.resume_session_once", true); // TEMP restart
 // userChrome.css): fill whole URLs, learning from what you pick.
 user_pref("browser.urlbar.autoFill", true);
 user_pref("browser.urlbar.autoFill.adaptiveHistory.enabled", true);
+// Domain bright, the rest of the URL dimmed (the pill shows mostly the domain).
+user_pref("browser.urlbar.formatting.enabled", true);
+user_pref("browser.urlbar.trimHttps", true);
