@@ -1,6 +1,6 @@
 # Calmarchy
 
-A calm, Mac-like [Omarchy](https://omarchy.org). This is my setup on a MacBook Air (M2) running Asahi Linux. It's Hyprland in floating mode, set up to feel like macOS: windows live in panes, there's little chrome, and colours stay calm.
+An idea for a calm, Mac-like [Omarchy](https://omarchy.org). It isn't a fork: it's a set of config files, scripts and shell plugins that sit on top of a stock Omarchy install, which keeps updating as usual. This is my setup on a MacBook Air (M2) running Asahi Linux. It's Hyprland in floating mode, set up to feel like macOS: windows live in panes, there's little chrome, and colours stay calm.
 
 ![Desktop](screenshots/desktop.png)
 
