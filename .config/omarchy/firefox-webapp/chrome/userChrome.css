@@ -132,10 +132,17 @@
 }
 
 /* Firefox's own status text: the pill already shows loading, so drop "Waiting
-   for…/Transferring data…", and show link previews at the bottom right, clear
+   for…/Transferring data…", and show link previews at the bottom center, clear
    of the pill. */
 #statuspanel[type="status"] { display: none !important; }
-#statuspanel { inset-inline-start: auto !important; inset-inline-end: 10px !important; bottom: 10px !important; }
+#statuspanel {
+  inset-inline-start: 50% !important;
+  inset-inline-end: auto !important;
+  bottom: 10px !important;
+  transform: translateX(-50%) !important;
+  max-width: 50% !important;
+}
+#statuspanel[mirror] { inset-inline-start: 50% !important; inset-inline-end: auto !important; }
 
 
 /* Inline autocomplete only: no suggestions list. Typing fills the rest of the
@@ -144,7 +151,7 @@
 #urlbar .urlbarView { display: none !important; }
 
 /* Link preview styled like the pill: same surface, hairline, corners, shadow,
-   type and inset, in the opposite corner. */
+   type and inset, centered along the bottom. */
 #statuspanel-label {
   background-color: var(--toolbar-bgcolor) !important;
   color: var(--toolbar-color) !important;
