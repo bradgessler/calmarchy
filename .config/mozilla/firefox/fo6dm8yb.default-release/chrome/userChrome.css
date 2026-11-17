@@ -83,9 +83,9 @@
 #translations-button, #picture-in-picture-button { display: none !important; }
 
 /* Frosted-glass URL pill: no bar across the top or bottom. The address floats
-   in a small pill centered at the bottom of the page, over it. At rest it is
-   invisible; with the mouse over it, or while typing an address, it fades up
-   and takes clicks. While a page loads it shows the URL, with a shimmer, and stays 1s after. */
+   in a small pill centered at the bottom of the page, over it. It is always
+   visible (dimmed at rest), coming up fully with the mouse over it, while
+   typing an address, or while a page loads. */
 #navigator-toolbox, #nav-bar { background: transparent !important; }
 #navigator-toolbox {
   position: fixed !important;
@@ -103,9 +103,10 @@
   background-color: rgba(39, 40, 34, 0.94) !important;
   box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25) !important;
   overflow: hidden !important;
-  opacity: 0;
-  /* Fading away waits a second: after a page loads (or the mouse leaves) the
-     URL stays up for 1s, then fades. */
+  /* Always visible, so a page can never fake the address in its place (pages
+     can't draw over browser UI). Calm at rest, full on hover or while
+     loading; dimming back waits a second. */
+  opacity: 0.7;
   transition: opacity 400ms ease-out 1s !important;
 }
 #navigator-toolbox:hover,
