@@ -206,9 +206,10 @@ Item {
             antialiasing: true
           }
           anchors.verticalCenter: parent.verticalCenter
-          // Optical centering: the window's shadow eats into the top of the
-          // margin, so sit the bars a little low of the measured middle.
-          anchors.verticalCenterOffset: 1.5
+          // Optical centering, measured: the window's shadow (range 7, power 4)
+          // is visible to ~3.5pt below the window, so the bars sit in the middle
+          // of the clear space under it, not the middle of the 12pt gap.
+          anchors.verticalCenterOffset: 2
           x: Math.round(modelData.centerX - strip.monitorX - width / 2)
 
           Repeater {
@@ -224,14 +225,14 @@ Item {
               Rectangle {
                 anchors.centerIn: parent
                 // Thin rounded bars, centered in the 12pt margin under the pane.
-                width: 14; height: 4; radius: 2
+                width: 14; height: 2; radius: 1
                 antialiasing: true
                 color: Color.bar.text
                 // The window that just came to the front: its dot fades up, then
                 // settles. The rest stay faint (a little more over the band).
-                opacity: area.containsMouse ? 0.75
-                  : hit.modelData.front ? (root.lively ? 0.9 : 0.4)
-                  : (bandHover.hovered ? 0.3 : 0.16)
+                opacity: area.containsMouse ? 0.9
+                  : hit.modelData.front ? (root.lively ? 1.0 : 0.7)
+                  : (bandHover.hovered ? 0.5 : 0.32)
                 Behavior on opacity { NumberAnimation { duration: Style.duration(root.lively ? 260 : 700); easing.type: Easing.OutCubic } }
               }
 

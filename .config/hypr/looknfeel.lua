@@ -90,7 +90,7 @@ hl.config({
 local function no_titlebars()
   hl.config({ plugin = { hyprbars = { enabled = false } } })
   hl.config({ decoration = { shadow = {
-    enabled = true, range = 7, render_power = 2, offset = "0 0",
+    enabled = true, range = 7, render_power = 4, offset = "0 0",
     color = "rgba(00000066)", color_inactive = "rgba(00000026)",
   } } })
   -- No dimming of inactive windows: it shifts their colours (comparing two
