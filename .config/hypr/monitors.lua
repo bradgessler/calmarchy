@@ -6,7 +6,14 @@
 -- "auto" lets Hyprland pick per display.
 local omarchy_monitor_scale = "auto"
 hl.monitor({ output = "", mode = "preferred", position = "auto", scale = omarchy_monitor_scale })
-hl.monitor({ output = "eDP-1", mode = "preferred", position = "auto", scale = 2 })
+hl.monitor({ output = "eDP-1", mode = "preferred", position = "0x0", scale = 2 })
+
+-- LG UltraFine 5K, sitting above the laptop, centered. Its native 5120x2880
+-- is two tiles and Asahi's display driver only drives one, so Hyprland's
+-- "preferred" mode fails and the display drops and reconnects in a loop.
+-- 3840x2160 is a single stream; scale 1.5 makes it "look like" 2560x1440,
+-- the macOS default for this panel. Centered: x = (1280 - 2560) / 2.
+hl.monitor({ output = "desc:LG Electronics LG UltraFine 010NTTQCT641", mode = "3840x2160@60", position = "-640x-1440", scale = 1.5 })
 
 -- Configure a specific monitor.
 -- hl.monitor({ output = "DP-2", mode = "2560x1440@144", position = "0x0", scale = 1 })

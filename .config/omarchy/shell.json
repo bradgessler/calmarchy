@@ -19,7 +19,11 @@
           "headless": true
         },
         {
-          "format": "dddd HH:mm",
+          "id": "omarchy.power",
+          "showPercentage": true
+        },
+        {
+          "format": "ddd MMM d  HH:mm",
           "formatAlt": "d MMMM 'W'ww yyyy",
           "id": "omarchy.clock",
           "verticalFormat": "HH\n—\nmm"
@@ -81,9 +85,6 @@
         },
         {
           "id": "omarchy.monitor"
-        },
-        {
-          "id": "omarchy.power"
         }
       ]
     },
