@@ -130,12 +130,17 @@ function panel_open_sync()
     hl.window_rule({ name = "panel-open", enabled = false })
     return
   end
+  local m = hl.get_active_monitor()
+  local mx, my = m and m.x or 0, m and m.y or 0
   hl.window_rule({
     name = "panel-open",
     enabled = true,
     match = { tag = "omarchy-mode-opened" },
     size = string.format("%d %d", a.size.x, a.size.y),
-    move = string.format("%d %d", a.at.x, a.at.y),
+    -- Rule moves are relative to the monitor the window opens on, so take
+    -- that monitor's origin off (the UltraFine sits at -640,-1440; on the
+    -- laptop at 0,0 it made no difference, so this went unnoticed).
+    move = string.format("%d %d", a.at.x - mx, a.at.y - my),
   })
 end
 hl.on("window.active", function() panel_open_sync() end)

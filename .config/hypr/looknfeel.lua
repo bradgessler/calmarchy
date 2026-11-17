@@ -89,3 +89,9 @@ hl.on("config.reloaded", no_titlebars)
 -- The env reaches apps started after login; setcursor and gsettings apply now.
 hl.env("XCURSOR_SIZE", "20")
 hl.env("HYPRCURSOR_SIZE", "20")
+
+-- New panes fade in quickly, already at their panel's size and spot (the
+-- panel-open rule sizes them from the first frame), instead of popping in from
+-- 87% scale. popin 100% means no scaling, so only the fade shows.
+hl.animation({ leaf = "windowsIn", enabled = true, speed = 1.5, bezier = "easeOutQuint", style = "popin 100%" })
+hl.animation({ leaf = "fadeIn", enabled = true, speed = 1.5, bezier = "easeOutQuint" })
