@@ -45,3 +45,13 @@
 #urlbar-searchmode-switcher { display: none !important; }
 #urlbar-input-container { padding-inline-start: 6px !important; }
 #urlbar-input::placeholder { opacity: 0.45 !important; }
+
+/* Toolbar icons: soft grey instead of bright white on black, like the rest
+   of the desktop; full strength only on hover. */
+#nav-bar .toolbarbutton-icon, #nav-bar .toolbarbutton-badge-stack,
+#urlbar .urlbar-icon, #urlbar-go-button, #identity-icon-box {
+  opacity: 0.55 !important;
+}
+#nav-bar toolbarbutton:hover .toolbarbutton-icon,
+#nav-bar toolbarbutton:hover .toolbarbutton-badge-stack,
+#urlbar .urlbar-icon:hover { opacity: 0.9 !important; }
