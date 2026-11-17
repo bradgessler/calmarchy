@@ -959,9 +959,23 @@ Item {
       applySerial = requestSerial
       opened = false
       filterText = ""
-      if (root.appLibrary) root.appLibrary.launch(appId, label)
+      // Already open? Bring its window forward instead of starting another
+      // copy (omarchy-focus-app exits 1 when there's no window to focus).
+      focusAppProc.appId = appId
+      focusAppProc.label = label
+      focusAppProc.command = ["omarchy-focus-app", appId]
+      focusAppProc.running = true
     } else {
       root.applySelected(row.itemId, row.action)
+    }
+  }
+
+  Process {
+    id: focusAppProc
+    property string appId: ""
+    property string label: ""
+    onExited: function(code) {
+      if (code !== 0 && root.appLibrary) root.appLibrary.launch(focusAppProc.appId, focusAppProc.label)
     }
   }
 

@@ -18,7 +18,7 @@ It isn't a fork, just an idea: a set of config files, scripts and shell plugins 
 
 ![Stack dots under a full-screen window](screenshots/stack-dots.png)
 
-**Spotlight (Cmd+Space): the system.** Omarchy's menu, widened. It has a search field across the top and a status column on the right (Wi-Fi, Bluetooth, power, sound, weather, updates) that replaces the tray icons; arrow right to reach it. Type a web address and the first row opens it; type anything else and you can search the web.
+**Spotlight (Cmd+Space): the system.** Omarchy's menu, widened. It has a search field across the top and a status column on the right (Wi-Fi, Bluetooth, power, sound, weather, updates) that replaces the tray icons; arrow right to reach it. Picking an app that's already open brings its window forward (switching workspace or display) instead of starting another copy; Cmd+N is there when you want a new window. Type a web address and the first row opens it; type anything else and you can search the web.
 
 ![Spotlight](screenshots/spotlight.png)
 
