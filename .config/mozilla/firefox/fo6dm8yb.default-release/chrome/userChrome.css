@@ -76,16 +76,17 @@
 #translations-button, #picture-in-picture-button { display: none !important; }
 
 /* Floating URL pill: no toolbar across the top. The URL (and the extensions
-   button) float in a small pill at the bottom left of the browser pane, faded
+   button) float in a small pill at the bottom center of the browser pane, faded
    and narrow at rest. While a page loads the pill widens to full strength
    with a soft shimmer along its bottom edge, then settles back. Focusing the
    address bar (Cmd+K > Address Bar, or Ctrl+L) widens it for typing. */
 #navigator-toolbox {
   position: fixed !important;
-  left: 10px !important;
+  left: 50% !important;
   bottom: 10px !important;
   top: auto !important;
   right: auto !important;
+  transform: translateX(-50%) !important;
   width: 300px !important;
   z-index: 10 !important;
   border: 1px solid var(--toolbar-field-border-color, rgba(127,127,127,.3)) !important;
@@ -128,18 +129,9 @@
   to { background-position: 140% 0; }
 }
 
-/* Firefox's own status text: the pill already shows loading, so drop "Waiting
-   for…/Transferring data…", and show link previews at the bottom center, clear
-   of the pill. */
-#statuspanel[type="status"] { display: none !important; }
-#statuspanel {
-  inset-inline-start: 50% !important;
-  inset-inline-end: auto !important;
-  bottom: 10px !important;
-  transform: translateX(-50%) !important;
-  max-width: 50% !important;
-}
-#statuspanel[mirror] { inset-inline-start: 50% !important; inset-inline-end: auto !important; }
+/* No status text at all: no link previews on hover, no "Waiting for…". The
+   pill already shows loading. */
+#statuspanel { display: none !important; }
 
 
 /* Inline autocomplete only: no suggestions list. Typing fills the rest of the
@@ -147,19 +139,6 @@
    line. History and bookmarks are in Cmd+K. */
 #urlbar .urlbarView { display: none !important; }
 
-/* Link preview styled like the pill: same surface, hairline, corners, shadow,
-   type and inset, centered along the bottom. */
-#statuspanel-label {
-  background-color: var(--toolbar-bgcolor) !important;
-  color: var(--toolbar-color) !important;
-  border: 1px solid var(--toolbar-field-border-color, rgba(127,127,127,.3)) !important;
-  border-radius: 8px !important;
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35) !important;
-  padding: 6px 10px !important;
-  font-size: 12px !important;
-  opacity: 0.9 !important;
-  margin: 0 !important;
-}
 
 /* Click-through at rest: the pill is a label, so clicks, scrolling and hover
    reach the page under it. It only takes the mouse while the address is
