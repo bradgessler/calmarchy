@@ -81,13 +81,18 @@ hl.config({
   },
 })
 
--- No title bars and no shadows on floating windows. Omarchy's 16pt shadows on
--- every window smudged the 8pt gaps; an active-window-only shadow jittered as
--- windows moved and popped on focus changes. Omarchy's floating mode turns both
--- back on after user config loads, so reapply once every reload settles.
+-- No title bars on floating windows. Shadows stay inside the 8pt gap between
+-- panes (range 7) so one never falls on another window: faint on inactive
+-- windows, darker on the active one (Hyprland has one size for both, so the
+-- active one reads "larger" by depth). Omarchy's 16pt shadows smudged the gaps
+-- and its floating mode resets this after user config loads, so reapply once
+-- every reload settles.
 local function no_titlebars()
   hl.config({ plugin = { hyprbars = { enabled = false } } })
-  hl.config({ decoration = { shadow = { enabled = false } } })
+  hl.config({ decoration = { shadow = {
+    enabled = true, range = 7, render_power = 2, offset = "0 0",
+    color = "rgba(00000066)", color_inactive = "rgba(00000026)",
+  } } })
   -- No dimming of inactive windows: it shifts their colours (comparing two
   -- photos side by side would be wrong).
   hl.config({ decoration = { dim_inactive = false } })
