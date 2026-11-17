@@ -18,19 +18,33 @@ It isn't a fork, just an idea: a set of config files, scripts and shell plugins 
 
 ![Stack dots under a full-screen window](screenshots/stack-dots.png)
 
-**Spotlight (Cmd+Space or Cmd+K).** Omarchy's menu, widened. It has a search field across the top and a status column on the right (Wi-Fi, Bluetooth, power, sound, weather, updates) that replaces the tray icons. Arrow right to reach the status column.
+**Spotlight (Cmd+Space): the system.** Omarchy's menu, widened. It has a search field across the top and a status column on the right (Wi-Fi, Bluetooth, power, sound, weather, updates) that replaces the tray icons; arrow right to reach it. Type a web address and the first row opens it; type anything else and you can search the web.
 
 ![Spotlight](screenshots/spotlight.png)
 
-**Cmd+K: the menu for the app in front.** Panes are just content. Cmd+K dims only the pane you're in and opens a small menu over it with fuzzy search over that app's actions (in Firefox: address bar, back, reload, console, inspector, history, downloads, …) plus pane moves (halves, full screen, other display, next in stack, close). Firefox has no toolbars. The address floats in a small pill at the bottom center of the page. Each time a page loads the URL shows at full strength for three seconds, then fades to a faint pill that stays put. Hover brings it back, and on any page that isn't secure it stays fully up with a warm border. Every page gets a little room at the end, so scrolling to the bottom always clears the pill. Its buttons live in Cmd+K.
+**Cmd+K: the app in front.** Panes are just content; their chrome lives here. Cmd+K dims only the pane you're in and opens a small menu over it, with fuzzy search over that app's actions plus the pane moves (halves, full screen, other display, next in stack, new window, close). In Firefox that's the address bar, back, forward, reload, find, console, inspector, history, bookmarks, downloads and the rest.
+
+![Cmd+K over Firefox](screenshots/cmd-k.png)
+
+Apps without their own menu get just the pane moves:
+
+![Cmd+K over a terminal](screenshots/cmd-k-pane.png)
+
+**A calm browser.** Firefox has no toolbars at all: no tab strip, no buttons, no bar across the top. The page fills the pane.
+
+![Firefox, calm](screenshots/browser.png)
+
+The address floats in a small pill at the bottom center. Each time a page loads it shows at full strength for three seconds, then fades to a faint pill that stays put, so you always know where the real address is. Hover brings it back. On any page that isn't secure it stays fully up with a warm border. Every page gets a little room at the end, so scrolling to the bottom always clears it.
+
+![The URL pill, just loaded and then at rest](screenshots/url-pill.png)
+
+DuckDuckGo is the default search, uBlock Origin Lite blocks ads using only built-in rules (no downloaded lists), new tabs are blank, typing an address fills in inline instead of popping up suggestions, link previews are off, and trackpad scrolling has a Mac-like glide. Open another window (Cmd+N) and it stacks instead of tabbing.
 
 **Quiet top bar.** Workspaces on the left, battery % and date on the right, nothing else. The top bar and the bottom dot band can be black (they blend into the notch, like part of the hardware) or clear over the wallpaper: Spotlight → Trigger → Toggle → Clear/Black Bars, or `omarchy-bands clear|black`.
 
 **Multiple displays.** Each display has its own five workspaces, and trackpad swipes work on each. Moving a window to another display keeps its pane: a full-screen window stays full screen, and a left half lands in the left half.
 
 **Look.** Hand-made Monokai theme with a warm grey accent, the Inter UI font, 3pt window corners and hairline borders. No dock and no screensaver.
-
-**Firefox.** Square, compact toolbar with no tab strip; open another window (Cmd+N) and it stacks instead. Tabs still exist underneath (Cmd+T, Ctrl+Tab) for when a site insists. The address bar has no box at rest and no search-engine pill. DuckDuckGo is the default search, uBlock Origin Lite blocks ads using only built-in rules, new tabs are blank, and trackpad scrolling has a Mac-like glide.
 
 ## Keys
 

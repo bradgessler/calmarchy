@@ -35,3 +35,5 @@ user_pref("browser.urlbar.autoFill.adaptiveHistory.enabled", true);
 // Domain bright, the rest of the URL dimmed (the pill shows mostly the domain).
 user_pref("browser.urlbar.formatting.enabled", true);
 user_pref("browser.urlbar.trimHttps", true);
+// No "Firefox automatically sends some data to Mozilla" notice bar.
+user_pref("datareporting.policy.dataSubmissionPolicyBypassNotification", true);
