@@ -93,6 +93,12 @@ grim -g "0,0 400x32" bar.png
 
 ## Things that crash or bite
 
+- Window-rule `move` is relative to the monitor the window opens on, not global
+  coords. `panel_open_sync()` subtracts the active monitor's origin; forget it and
+  new panes on the UltraFine (origin -640,-1440) spawn off-screen and fly in.
+- `omarchy-new-window` opens a window of the *focused* app; in tests, focus a
+  terminal first or you'll spawn Firefox windows.
+
 - **Never resize or move a window in `window.open_early`.** It segfaults Hyprland
   in `Layout::CSpace::resizeTarget` (no layout slot yet), and two crashes drop
   the session into safe mode. Use window rules (size/move) for first-frame
