@@ -6,9 +6,11 @@ import Quickshell.Io
 import qs.Commons
 
 // Windows snapped into the same omarchy-snap panel form a stack. Each stack of
-// two or more gets a row of dots in the black bottom band, vertically
-// centered and horizontally centered under it; the front window's dot is brighter. Windows
-// torn off into loose spots get no dot. Super+Tab / Alt+Tab rotate a stack.
+// two or more gets a row of dots in the bottom band, centered under it; the
+// front window's dot is brighter. When a window (usually a full-screen one)
+// covers other panels, those keep dim dots and the covering one gets a dot in
+// its center, so every hidden window is one click away. Windows torn off into
+// loose spots get no dot. Super+Tab / Alt+Tab rotate a stack.
 Item {
   id: root
 
@@ -91,31 +93,29 @@ Item {
     var fronts = {}
     for (var f = 0; f < order.length; f++)
       fronts[order[f]] = groups[order[f]].reduce(function(best, x) { return x.recency < best.recency ? x : best }, groups[order[f]][0])
-    // A stack buried under a window in front of it (a more recently focused
-    // window whose frame contains its own, like a full-screen one) is out of
-    // sight, so it shows no dots.
-    function buried(key) {
-      var a = fronts[key]
-      for (var o in fronts) {
-        if (o === key) continue
-        var b = fronts[o]
-        if (b.ws === a.ws && b.recency < a.recency
-            && b.x <= a.x + tolerance && b.y <= a.y + tolerance
-            && b.x + b.w >= a.x + a.w - tolerance && b.y + b.h >= a.y + a.h - tolerance)
-          return true
-      }
-      return false
+    // A panel is buried when a more recently focused window's frame contains
+    // its own (a full-screen one over a half, say). Buried panels keep their
+    // dots, dimmed, so they can be clicked back up; the panel burying them
+    // gets dots too, even a lone full-screen window, centered (the middle of
+    // the screen for a full one). Otherwise only stacks of 2+ get dots.
+    function covers(b, a) {
+      return b.ws === a.ws && b.recency < a.recency
+        && b.x <= a.x + tolerance && b.y <= a.y + tolerance
+        && b.x + b.w >= a.x + a.w - tolerance && b.y + b.h >= a.y + a.h - tolerance
+    }
+    var buried = {}, burying = {}
+    for (var a in fronts) for (var b in fronts) {
+      if (a !== b && covers(fronts[b], fronts[a])) { buried[a] = true; burying[b] = true }
     }
     var out = []
     for (var k = 0; k < order.length; k++) {
-      var g = groups[order[k]]
-      // A lone window in a panel needs no dot; dots mean "more under here".
-      if (g.length < 2 || buried(order[k])) continue
+      var key = order[k], g = groups[key]
+      if (g.length < 2 && !buried[key] && !burying[key]) continue
       g.sort(function(p, q) { return p.address < q.address ? -1 : 1 })
-      var front = fronts[order[k]]
+      var front = fronts[key]
       out.push({
-        ws: g[0].ws, centerX: g[0].x + g[0].w / 2,
-        windows: g.map(function(x) { return { address: x.address, front: x.address === front.address } })
+        ws: g[0].ws, centerX: g[0].x + g[0].w / 2, buried: !!buried[key],
+        windows: g.map(function(x) { return { address: x.address, front: x.address === front.address && !buried[key] } })
       })
     }
     var json = JSON.stringify(out)
