@@ -2,7 +2,7 @@
 # Run when a Super+drag ends: windows only live in panels, so land the dragged
 # window in one. Dropped mostly onto another window, it joins that stack;
 # released near the top edge, it goes full; otherwise it takes the left or
-# right half under the pointer.
+# right half under the pointer. Carried to another display, it keeps its panel.
 win=$(hyprctl -j activewindow)
 addr=$(jq -r '.address // empty' <<<"$win")
 [[ -n $addr && $(jq -r '.floating' <<<"$win") == true ]] || exit 0
@@ -22,6 +22,13 @@ other=$(hyprctl -j clients | jq -r --argjson a "$win" '
 if [[ -n $other ]]; then
   panel=$(omarchy-snap --frame-of "$other")
   [[ -n $panel ]] && { omarchy-snap "$panel" "$addr"; exit 0; }
+fi
+
+# Carried to another display, it keeps its panel: full stays full, a left half
+# lands in the left half.
+read -r last_panel last_mid < <(omarchy-snap --last "$addr")
+if [[ -n $last_panel && $last_mid != "$(jq -r '.monitor' <<<"$win")" ]]; then
+  omarchy-snap "$last_panel" "$addr"; exit 0
 fi
 
 read -r cx cy < <(hyprctl cursorpos | tr -d ',')

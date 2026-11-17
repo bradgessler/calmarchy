@@ -52,6 +52,22 @@ o.bind("SUPER + SHIFT + GRAVE", "Cycle windows stacked here (reverse)", "omarchy
 hl.unbind("SUPER + mouse:272")
 o.bind_hold("SUPER + mouse:272", "Move window", hl.dsp.window.drag(), "Land dropped window in a panel", "omarchy-panel-drop")
 
+-- Moving a window to another display keeps its panel there (full stays full,
+-- left half goes to the left half). Was: Omarchy's plain move to monitor.
+for key, direction in pairs({ LEFT = "l", RIGHT = "r", UP = "u", DOWN = "d" }) do
+  o.rebind("SUPER + SHIFT + CTRL + " .. key, "Move window to " .. direction .. " monitor, keeping its panel", function()
+    local window, target = hl.get_active_window(), hl.get_monitor(direction)
+    if not (window and window.address and target) then return end
+    local pipe = io.popen("omarchy-snap --frame-of " .. o.shell_quote(window.address))
+    local panel = pipe and (pipe:read("*l") or "") or ""
+    if pipe then pipe:close() end
+    hl.dispatch(hl.dsp.window.move({ monitor = target.name }))
+    if panel ~= "" then
+      hl.exec_cmd("sleep 0.1; omarchy-snap " .. panel .. " " .. window.address)
+    end
+  end)
+end
+
 -- Super+Tab like Cmd+Tab: rotate the stack under the active window, or cycle
 -- the workspace's windows when it isn't stacked. (Was: next/previous workspace.)
 o.rebind("SUPER + TAB", "Cycle stack or windows", "omarchy-window-cycle next")
