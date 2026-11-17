@@ -1,13 +1,15 @@
 #!/bin/bash
-# Spotlight's app rows: if the app already has a window, bring its most recent
-# one forward (switching workspace or display as needed) and exit 0; otherwise
-# exit 1 so the caller launches it.
+# Spotlight's app rows: if the app has a window on a workspace that's on screen
+# right now (on any display), bring its most recent one forward and exit 0.
+# Otherwise exit 1 so the caller launches a new one here; a window on some
+# other workspace doesn't pull you away to it. Cmd+N is the explicit "another".
 #   omarchy-focus-app <desktop-id>     e.g. firefox, org.gnome.Nautilus
 # Web-app launchers (an Exec with a URL, like X) match their window by title
 # instead, via X-Calmarchy-Title=<regex> in the .desktop; without one they
 # always open the page.
 id=${1:?usage: omarchy-focus-app <desktop-id>}
 id=${id%.desktop}
+visible=$(hyprctl -j monitors | jq -c 'map(.activeWorkspace.id)')
 
 file=""
 IFS=: read -ra dirs <<<"${XDG_DATA_HOME:-$HOME/.local/share}:${XDG_DATA_DIRS:-/usr/local/share:/usr/share}"
@@ -25,8 +27,8 @@ if [[ -n $file ]]; then
     # by window title, given as X-Calmarchy-Title (a regex) in its .desktop.
     title_re=$(sed -n 's/^X-Calmarchy-Title=//p' "$file" | head -1)
     [[ -n $title_re ]] || exit 1
-    addr=$(hyprctl -j clients | jq -r --arg re "$title_re" '
-      [ .[] | select(.mapped and .workspace.id > 0 and (.title | test($re))) ]
+    addr=$(hyprctl -j clients | jq -r --arg re "$title_re" --argjson vis "$visible" '
+      [ .[] | select(.mapped and ([.workspace.id] | inside($vis)) and (.title | test($re))) ]
       | sort_by(.focusHistoryID) | .[0].address // empty')
     [[ -n $addr ]] || exit 1
     hyprctl --batch "dispatch hl.dsp.focus({ window = \"address:$addr\" }); dispatch hl.dsp.window.bring_to_top()" >/dev/null
@@ -41,9 +43,9 @@ exe=$(basename "$(awk '{print $1}' <<<"$exec_line")" 2>/dev/null)
 
 # Classes this app's windows might have: StartupWMClass, the desktop id, its
 # last dotted part, and the executable name; compared without case.
-addr=$(hyprctl -j clients | jq -r --arg a "$wmclass" --arg b "$id" --arg c "${id##*.}" --arg d "$exe" '
+addr=$(hyprctl -j clients | jq -r --arg a "$wmclass" --arg b "$id" --arg c "${id##*.}" --arg d "$exe" --argjson vis "$visible" '
   ([$a, $b, $c, $d] | map(select(. != "") | ascii_downcase)) as $want
-  | [ .[] | select(.mapped and .workspace.id > 0 and ((.class | ascii_downcase) as $k | $want | index($k))) ]
+  | [ .[] | select(.mapped and ([.workspace.id] | inside($vis)) and ((.class | ascii_downcase) as $k | $want | index($k))) ]
   | sort_by(.focusHistoryID) | .[0].address // empty')
 [[ -n $addr ]] || exit 1
 
