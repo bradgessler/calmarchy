@@ -22,7 +22,7 @@ It isn't a fork, just an idea: a set of config files, scripts and shell plugins 
 
 ![Spotlight](screenshots/spotlight.png)
 
-**Cmd+K: the menu for the app in front.** Panes are just content. Cmd+K dims only the pane you're in and opens a small menu over it with fuzzy search over that app's actions (in Firefox: address bar, back, reload, console, inspector, history, downloads, …) plus pane moves (halves, full screen, other display, next in stack, close). Firefox has no toolbars. The address floats in a small pill at the bottom center of the page, invisible until you mouse over it (or press Cmd+K → Address Bar), then it fades up. Every page gets a little room at the end, so scrolling to the bottom always clears the pill. Its buttons live in Cmd+K.
+**Cmd+K: the menu for the app in front.** Panes are just content. Cmd+K dims only the pane you're in and opens a small menu over it with fuzzy search over that app's actions (in Firefox: address bar, back, reload, console, inspector, history, downloads, …) plus pane moves (halves, full screen, other display, next in stack, close). Firefox has no toolbars. The address floats in a small pill at the bottom center of the page, invisible until you mouse over it (or press Cmd+K → Address Bar), then it fades up. It also shows the URL as each page loads, for a second after. Every page gets a little room at the end, so scrolling to the bottom always clears the pill. Its buttons live in Cmd+K.
 
 **Quiet top bar.** Workspaces on the left, battery % and date on the right, nothing else. The top bar and the bottom dot band can be black (they blend into the notch, like part of the hardware) or clear over the wallpaper: Spotlight → Trigger → Toggle → Clear/Black Bars, or `omarchy-bands clear|black`.
 

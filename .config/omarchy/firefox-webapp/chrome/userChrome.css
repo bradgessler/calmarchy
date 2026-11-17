@@ -88,7 +88,7 @@
 /* Frosted-glass URL pill: no bar across the top or bottom. The address floats
    in a small pill centered at the bottom of the page, over it. At rest it is
    invisible; with the mouse over it, or while typing an address, it fades up
-   and takes clicks. While a page loads it shows faintly, with a shimmer. */
+   and takes clicks. While a page loads it shows the URL, with a shimmer, and stays 1s after. */
 #navigator-toolbox, #nav-bar { background: transparent !important; }
 #navigator-toolbox {
   position: fixed !important;
@@ -107,12 +107,17 @@
   box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25) !important;
   overflow: hidden !important;
   opacity: 0;
-  transition: opacity 220ms ease-out !important;
+  /* Fading away waits a second: after a page loads (or the mouse leaves) the
+     URL stays up for 1s, then fades. */
+  transition: opacity 400ms ease-out 1s !important;
 }
 #navigator-toolbox:hover,
 #navigator-toolbox:focus-within,
-:root:has(#urlbar[open]) #navigator-toolbox { opacity: 1; }
-:root:has(.tabbrowser-tab[selected][busy]) #navigator-toolbox { opacity: 0.6; }
+:root:has(#urlbar[open]) #navigator-toolbox,
+:root:has(.tabbrowser-tab[selected][busy]) #navigator-toolbox {
+  opacity: 1;
+  transition: opacity 180ms ease-out 0s !important;
+}
 #browser, #customization-container { margin-top: 0 !important; margin-bottom: 0 !important; }
 #urlbar-background, #urlbar, #urlbar-input-container {
   background: transparent !important;
