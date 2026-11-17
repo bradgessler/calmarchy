@@ -13,6 +13,9 @@ hl.monitor({ output = "eDP-1", mode = "preferred", position = "0x0", scale = 2 }
 -- "preferred" mode fails and the display drops and reconnects in a loop.
 -- 3840x2160 is a single stream; scale 1.5 makes it "look like" 2560x1440,
 -- the macOS default for this panel. Centered: x = (1280 - 2560) / 2.
+-- Text size vs the laptop: the laptop is ~112 points/inch, this ~109 at 1.5,
+-- so text is ~3% larger here. An exact match needs 1.454, which Hyprland
+-- rejects (scale must be n/120 and give whole pixels); 1.333 is 8% too small.
 hl.monitor({ output = "desc:LG Electronics LG UltraFine 010NTTQCT641", mode = "3840x2160@60", position = "-640x-1440", scale = 1.5 })
 
 -- Configure a specific monitor.
