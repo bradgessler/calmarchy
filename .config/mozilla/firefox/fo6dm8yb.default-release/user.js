@@ -27,3 +27,4 @@ user_pref("browser.startup.homepage", "about:blank");
 // No search-engine switcher pill in the address bar; just type.
 user_pref("browser.urlbar.searchModeSwitcher.featureGate", false);
 user_pref("browser.urlbar.scotchBonnet.enableOverride", false);
+user_pref("browser.sessionstore.resume_session_once", true); // TEMP restart

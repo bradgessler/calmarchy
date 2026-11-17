@@ -143,3 +143,7 @@ hl.on("window.active", function() panel_open_sync() end)
 -- maximized and skip the panel.
 hl.window_rule({ name = "panel-open-nomax", match = { tag = "omarchy-mode-opened" }, suppress_event = "maximize" })
 panel_open_sync()
+
+-- Super+K opens Spotlight too, same as Super+Space (was: the keybindings list,
+-- still reachable by typing "keybindings" in Spotlight).
+o.rebind("SUPER + K", "Spotlight", { menu = "root" })
