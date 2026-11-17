@@ -80,13 +80,18 @@ hl.config({
   },
 })
 
--- No title bars and no drop shadows on floating windows. Omarchy's floating
--- mode turns both on after user config has loaded, so turn them back off once
--- every reload has settled. (With 8pt gaps, neighbours' soft shadows overlapped
--- into a grey smudge between panes.)
+-- No title bars on floating windows, and a shadow only on the active one (like
+-- macOS's focused window): small, soft, no offset. Every window having Omarchy's
+-- 16pt shadow overlapped into a grey smudge in the 8pt gaps. Omarchy's floating
+-- mode resets both after user config loads, so reapply once every reload settles.
 local function no_titlebars()
   hl.config({ plugin = { hyprbars = { enabled = false } } })
-  hl.config({ decoration = { shadow = { enabled = false } } })
+  hl.config({ decoration = { shadow = {
+    enabled = true, range = 14, render_power = 3, offset = "0 3",
+    color = "rgba(00000059)", color_inactive = "rgba(00000000)",
+  } } })
+  -- The active window reads as lit: the others dim a touch.
+  hl.config({ decoration = { dim_inactive = true, dim_strength = 0.1 } })
 end
 no_titlebars()
 hl.on("config.reloaded", no_titlebars)
