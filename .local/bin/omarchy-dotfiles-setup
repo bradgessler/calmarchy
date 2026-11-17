@@ -1,0 +1,63 @@
+#!/bin/bash
+# One-time setup after cloning this config onto an Omarchy machine (see
+# ~/.github/README.md). Safe to run again. Does what files alone can't:
+# packages, GNOME settings, the Firefox profile files and policy, the theme,
+# and reloads Hyprland and the shell.
+set -euo pipefail
+
+say() { printf '\033[1m==> %s\033[0m\n' "$*"; }
+
+say "Hiding untracked files from 'dotfiles status'"
+git --git-dir="$HOME/.dotfiles" --work-tree="$HOME" config status.showUntrackedFiles no
+
+say "Packages (Inter UI font)"
+pacman -Q inter-font >/dev/null 2>&1 || sudo pacman -S --needed --noconfirm inter-font
+
+say "GNOME settings (UI font, cursor size)"
+gsettings set org.gnome.desktop.interface font-name 'Inter 11'
+gsettings set org.gnome.desktop.interface cursor-size 20
+
+# Firefox keeps settings per profile, in a randomly named folder. The tracked
+# copy lives in the original machine's profile; put it in this one's too.
+say "Firefox profile (user.js, userChrome.css)"
+src=$(ls -d "$HOME"/.config/mozilla/firefox/*.default-release 2>/dev/null | while read -r d; do
+  [[ -f $d/chrome/userChrome.css && -f $d/user.js ]] && git --git-dir="$HOME/.dotfiles" --work-tree="$HOME" ls-files --error-unmatch "$d/user.js" >/dev/null 2>&1 && echo "$d"
+done | head -1)
+for profile in "$HOME"/.config/mozilla/firefox/*.default-release; do
+  [[ -d $profile && $profile != "$src" && -n $src ]] || continue
+  mkdir -p "$profile/chrome"
+  cp "$src/user.js" "$profile/user.js"
+  cp "$src/chrome/userChrome.css" "$profile/chrome/userChrome.css"
+  echo "   $profile"
+done
+[[ -n $(ls -d "$HOME"/.config/mozilla/firefox/*.default-release 2>/dev/null) ]] ||
+  echo "   No Firefox profile yet: start Firefox once, quit, and run this again."
+
+# Firefox ignores search defaults written into profile files, so DuckDuckGo
+# and the ad blocker go in through the system-wide policy file.
+say "Firefox policy (DuckDuckGo default, uBlock Origin Lite)"
+packaged=/usr/lib/firefox/distribution/policies.json
+tmp=$(mktemp)
+jq '.policies.SearchEngines = {"Default": "DuckDuckGo"}
+    | .policies.ExtensionSettings["uBOLiteRedux@raymondhill.net"] = {
+        "installation_mode": "force_installed",
+        "install_url": "https://addons.mozilla.org/firefox/downloads/latest/ublock-origin-lite/latest.xpi" }' \
+  "$( [[ -f $packaged ]] && echo "$packaged" || echo /dev/null)" 2>/dev/null >"$tmp" ||
+  jq -n '{policies: {SearchEngines: {Default: "DuckDuckGo"}, ExtensionSettings: {"uBOLiteRedux@raymondhill.net": {installation_mode: "force_installed", install_url: "https://addons.mozilla.org/firefox/downloads/latest/ublock-origin-lite/latest.xpi"}}}}' >"$tmp"
+sudo install -D -m 644 "$tmp" /etc/firefox/policies/policies.json
+rm -f "$tmp"
+
+say "Theme (Monokai, misty forest wallpaper)"
+omarchy theme set monokai >/dev/null 2>&1 || true
+omarchy-theme-bg-set "$HOME/.local/state/omarchy/current/theme/backgrounds/3-tree-tops.webp" >/dev/null 2>&1 || true
+
+say "Reloading Hyprland and the shell"
+hyprctl reload >/dev/null
+omarchy restart shell >/dev/null 2>&1 || true
+
+cat <<'EOF'
+
+Done. Restart Firefox to pick up its settings.
+Optional: Berkeley Mono (licensed, not included) is the terminal font; without
+it the terminal falls back to the system monospace font.
+EOF

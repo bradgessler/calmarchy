@@ -1,7 +1,7 @@
 [Desktop Entry]
 Version=1.0
 Name=X
-Exec=/home/bradgessler/.local/bin/omarchy-firefox-webapp https://x.com/
+Exec=sh -c "\"$HOME/.local/bin/omarchy-firefox-webapp\" https://x.com/"
 StartupWMClass=firefox-webapp-x.com
 Terminal=false
 Type=Application
