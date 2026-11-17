@@ -715,6 +715,18 @@ Item {
     }
   }
 
+  // Typed text that looks like a web address ("example.com", "https://...",
+  // "localhost:3000/path"), normalized to a URL; "" otherwise. No spaces, and
+  // either a scheme, localhost, an IP, or a dotted host ending in a 2+ letter TLD.
+  function urlFromQuery(text) {
+    var q = String(text || "").trim()
+    if (!q || /\s/.test(q)) return ""
+    if (/^(https?|file):\/\//i.test(q)) return q
+    if (/^(localhost|127\.0\.0\.1|\d{1,3}(\.\d{1,3}){3})(:\d+)?(\/.*)?$/i.test(q)) return "http://" + q
+    if (/^([a-z0-9-]+\.)+[a-z]{2,}(:\d+)?([\/?#].*)?$/i.test(q)) return "https://" + q
+    return ""
+  }
+
   function rebuildDisplay() {
     if (root.dmenuActive) {
       root.rebuildDmenuDisplay()
@@ -759,6 +771,21 @@ Item {
         for (var d = 0; d < drilldownRows.length; d++) drilldownRows[d].section = "drilldown"
       }
       rows = currentRows.concat(drilldownRows)
+
+      // The web, as the first row: a typed web address opens in the default
+      // browser; anything else is searched (DuckDuckGo, Firefox's default).
+      // When nothing in the menu matches, the search row is all there is.
+      var url = root.urlFromQuery(query)
+      var webRow = {
+        itemId: "web.open", disabled: false, kind: "web", icon: url ? "󰖟" : "󰍉", iconFont: "",
+        appIcon: "", appId: "",
+        label: url ? "Open " + url.replace(/^https?:\/\//i, "") : "Search the web for \u201c" + query + "\u201d",
+        target: url || ("https://duckduckgo.com/?q=" + encodeURIComponent(query)),
+        detail: url ? "Browser" : "DuckDuckGo", path: "", childCount: 0, action: "",
+        provider: "", score: -1, section: ""
+      }
+      if (url || rows.length === 0) rows.unshift(webRow)
+      else rows.push(webRow)
     } else {
       for (var j = 0; j < root.itemOrder.length; j++) {
         var child = root.item(root.itemOrder[j])
@@ -903,6 +930,12 @@ Item {
     var row = displayModel.get(index)
     if (row.kind === "menu" || row.kind === "link") {
       root.setActiveMenu(row.target || row.itemId, true, fromPointer)
+    } else if (row.kind === "web") {
+      var target = row.target
+      applySerial = requestSerial
+      opened = false
+      filterText = ""
+      Util.execArgv(["omarchy-launch-browser", target])
     } else if (row.kind === "app") {
       var appId = row.appId
       var label = row.label

@@ -6,7 +6,7 @@ An idea for a calm, Mac-like [Omarchy](https://omarchy.org). It isn't a fork: it
 
 ## What's different from stock Omarchy
 
-**Panes and stacks, no tabs.** I can't stand tabs, so there are none: no tab bars, no Hyprland groups, no Firefox tab strip. Instead every window sits in one of nine panes per display: full screen, left or right half, top or bottom half, or a quarter. Windows in the same pane form a *stack*, which plays the role tabs would. New windows open on top of the pane you're in and fade in already at full size. Cmd+Tab moves between panes and Option+Tab between the windows stacked in one.
+**Panes and stacks, no tabs.** I can't stand tabs, so there are none: no tab bars, no Hyprland groups, no Firefox tab strip. Instead every window sits in one of nine panes per display: full screen, left or right half, top or bottom half, or a quarter. Windows in the same pane form a *stack*, which plays the role tabs would. New windows fill the empty half next to you when there is one, and otherwise open on top of the pane you're in. Either way they fade in already at full size. Cmd+Tab moves between panes and Option+Tab between the windows stacked in one.
 
 ![Moving between panes and stacks](screenshots/panes.gif)
 

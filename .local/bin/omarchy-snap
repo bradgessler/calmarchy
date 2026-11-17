@@ -3,6 +3,7 @@
 #   omarchy-snap <panel> [address]   put a window (default: the active one) in a panel
 #   omarchy-snap --frame-of <address>  print the panel a window sits in, or nothing
 #   omarchy-snap --frame <panel>       print a panel's "x y w h" on the focused monitor
+#   omarchy-snap --frame-on <panel> <monitor-id>  the same on a given monitor
 #   omarchy-snap --last <address>      print the panel and monitor id it was last snapped to
 # Panels: full left right top bottom tl tr bl br
 gap=${OMARCHY_SNAP_GAP:-8}
@@ -22,6 +23,10 @@ frame() { # frame <panel> <monitor-id> -> "x y w h"
         bl:     [$ax, $ay + $ch + $gap, $cw, $ch], br:   [$ax + $cw + $gap, $ay + $ch + $gap, $cw, $ch]
       }[$pos] // empty | map(floor) | join(" ")'
 }
+
+if [[ $1 == --frame-on ]]; then   # --frame-on <panel> <monitor-id>
+  frame "${2:?panel}" "${3:?monitor id}"; exit
+fi
 
 if [[ $1 == --frame ]]; then
   frame "${2:?panel}" "$(hyprctl -j activeworkspace | jq -r '.monitorID')"; exit

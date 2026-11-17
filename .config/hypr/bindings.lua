@@ -125,23 +125,82 @@ end)
 -- size and spot from their first frame. omarchy-panel-place still settles any
 -- case this misses (empty workspace, a window off the panel grid).
 -- omarchy-snap calls panel_open_sync() after it moves a window.
+-- Panel frames on a monitor, matching omarchy-snap (8pt gaps, inside the
+-- reserved bars): full and the two halves, as {x, y, w, h}.
+local PANEL_GAP = 8
+local function panel_frames(m)
+  local r = m.reserved or {}
+  local ax = m.x + (r.left or 0) + PANEL_GAP
+  local ay = m.y + (r.top or 0) + PANEL_GAP
+  local aw = m.width / m.scale - (r.left or 0) - (r.right or 0) - 2 * PANEL_GAP
+  local ah = m.height / m.scale - (r.top or 0) - (r.bottom or 0) - 2 * PANEL_GAP
+  local cw = (aw - PANEL_GAP) / 2
+  local f = math.floor
+  return {
+    full = { f(ax), f(ay), f(aw), f(ah) },
+    left = { f(ax), f(ay), f(cw), f(ah) },
+    right = { f(ax + cw + PANEL_GAP), f(ay), f(cw), f(ah) },
+  }
+end
+
+local function frame_name(w, frames)
+  for name, fr in pairs(frames) do
+    if math.abs(w.at.x - fr[1]) <= 6 and math.abs(w.at.y - fr[2]) <= 6
+      and math.abs(w.size.x - fr[3]) <= 6 and math.abs(w.size.y - fr[4]) <= 6 then
+      return name
+    end
+  end
+end
+
+-- Nothing on the workspace covers more than a sliver of the frame.
+local function frame_empty(fr, workspace_id)
+  for _, w in ipairs(hl.get_windows()) do
+    if w.mapped and not w.hidden and w.workspace and w.workspace.id == workspace_id then
+      local ix = math.min(w.at.x + w.size.x, fr[1] + fr[3]) - math.max(w.at.x, fr[1])
+      local iy = math.min(w.at.y + w.size.y, fr[2] + fr[4]) - math.max(w.at.y, fr[2])
+      if ix > 0 and iy > 0 and ix * iy > 0.1 * fr[3] * fr[4] then return false end
+    end
+  end
+  return true
+end
+
+-- Where a window opened now should go: the empty half beside the focused
+-- one when the focused window is in a half and the other half is empty
+-- space; otherwise on top of the focused window's stack. Returns x, y, w, h.
+function panel_open_target()
+  local a = hl.get_active_window()
+  if not a then return nil end
+  local m = a.monitor or hl.get_active_monitor()
+  if m and a.workspace then
+    local frames = panel_frames(m)
+    local name = frame_name(a, frames)
+    local other = (name == "left" and "right") or (name == "right" and "left") or nil
+    if other and frame_empty(frames[other], a.workspace.id) then
+      local fr = frames[other]
+      return fr[1], fr[2], fr[3], fr[4], m
+    end
+  end
+  return a.at.x, a.at.y, a.size.x, a.size.y, m
+end
+
 function panel_open_sync()
   local a = hl.get_active_window()
   if not a or not a.floating or (a.fullscreen or 0) ~= 0 then
     hl.window_rule({ name = "panel-open", enabled = false })
     return
   end
-  local m = hl.get_active_monitor()
+  local x, y, w, h, m = panel_open_target()
+  m = m or hl.get_active_monitor()
   local mx, my = m and m.x or 0, m and m.y or 0
   hl.window_rule({
     name = "panel-open",
     enabled = true,
     match = { tag = "omarchy-mode-opened" },
-    size = string.format("%d %d", a.size.x, a.size.y),
+    size = string.format("%d %d", w, h),
     -- Rule moves are relative to the monitor the window opens on, so take
     -- that monitor's origin off (the UltraFine sits at -640,-1440; on the
     -- laptop at 0,0 it made no difference, so this went unnoticed).
-    move = string.format("%d %d", a.at.x - mx, a.at.y - my),
+    move = string.format("%d %d", x - mx, y - my),
   })
 end
 hl.on("window.active", function() panel_open_sync() end)

@@ -1,6 +1,7 @@
 #!/bin/bash
-# Run when a window opens: put it in the panel of the window you were just in,
-# on top of that stack, or full if the workspace was empty. Dialogs and apps
+# Run when a window opens: put it in the empty half beside the window you were
+# just in if there is one, else in that window's panel on top of its stack, or
+# full if the workspace was empty. Dialogs and apps
 # that float on their own account (no omarchy-mode-opened tag) are left alone.
 addr=${1:?usage: omarchy-panel-place <address>}
 [[ $addr == 0x* ]] || addr="0x$addr"
@@ -20,6 +21,18 @@ if [[ -n $(find "$marker" -newermt '-10 seconds' 2>/dev/null) ]]; then
   rm -f "$marker"   # Cmd+Shift+N asked for a full window
 elif [[ -n $prev ]]; then
   panel=$(omarchy-snap --frame-of "$prev") || panel=full
+  # Beside a half whose other half is empty space, take that half instead of
+  # stacking (the panel-open rule already drew it there from its first frame).
+  case $panel in left) other=right ;; right) other=left ;; *) other= ;; esac
+  if [[ -n $other ]]; then
+    read -r fx fy fw fh < <(omarchy-snap --frame-on "$other" "$(jq -r '.monitor' <<<"$win")")
+    covered=$(jq --argjson w "$win" --argjson f "[$fx,$fy,$fw,$fh]" '
+      [ .[] | select(.address != $w.address and .workspace.id == $w.workspace.id and .mapped and (.hidden | not))
+        | ([.at[0] + .size[0], $f[0] + $f[2]] | min) - ([.at[0], $f[0]] | max) as $ix
+        | ([.at[1] + .size[1], $f[1] + $f[3]] | min) - ([.at[1], $f[1]] | max) as $iy
+        | select($ix > 0 and $iy > 0 and $ix * $iy > 0.1 * $f[2] * $f[3]) ] | length' <<<"$clients")
+    [[ $covered == 0 ]] && panel=$other
+  fi
 fi
 omarchy-snap "$panel" "$addr"
 hyprctl --batch "dispatch hl.dsp.focus({ window = \"address:$addr\" }); dispatch hl.dsp.window.bring_to_top()" >/dev/null

@@ -33,9 +33,9 @@ more windows in the same panel. No Hyprland groups or tabs (Brad rejects tabs).
 | Piece | Where | What |
 |---|---|---|
 | `omarchy-snap <panel> [addr]` | ~/.local/bin | place a window; `--frame-of <addr>` names its panel (6px tolerance); `--frame <panel>` prints "x y w h" on focused monitor; ends by calling `panel_open_sync()` |
-| `panel-open` rule + `panel_open_sync()` | hypr/bindings.lua | rule gives windows tagged `omarchy-mode-opened` the focused window's size/position **from their first frame** (no slide). Synced on `window.active`, by omarchy-snap, and by omarchy-new-window |
+| `panel-open` rule + `panel_open_sync()` | hypr/bindings.lua | rule gives windows tagged `omarchy-mode-opened` the target frame **from their first frame** (no slide): the empty other half if the focused window is in a half and the other half is empty (`panel_open_target()`), else the focused window's frame. Synced on `window.active`, by omarchy-snap, and by omarchy-new-window |
 | `panel-open-nomax` rule | hypr/bindings.lua | `suppress_event = "maximize"` so apps that remember being maximized (Firefox) still land in the panel |
-| `omarchy-panel-place <addr>` | ~/.local/bin, run from `window.open` | fallback: after 0.2s snaps the new window to the previous window's panel (full on empty workspace); honours the `$XDG_RUNTIME_DIR/omarchy-place-full` marker |
+| `omarchy-panel-place <addr>` | ~/.local/bin, run from `window.open` | fallback: after 0.2s snaps the new window to the empty other half, else the previous window's panel (full on empty workspace); must agree with `panel_open_target()`; honours the `$XDG_RUNTIME_DIR/omarchy-place-full` marker |
 | Super+T (Cmd+T) | hypr/bindings.lua | sends Ctrl+T (Ctrl+Shift+T in terminals) for a new tab. Replaces Omarchy's float/tile toggle, which tiled windows full-screen on these floating workspaces |
 | `omarchy-new-window [--full]` | ~/.local/bin | Super+N (Cmd+N) new window of the focused app, stacked; Super+Shift+N `--full` fills the workspace |
 | `omarchy-panel-drop` | ~/.local/bin | Super+drag release picks a panel; dragged to another display it keeps its last panel (from `omarchy-snap --last`, memo in `$XDG_RUNTIME_DIR/omarchy-panels/`) |
