@@ -1,0 +1,16 @@
+#!/bin/bash
+# The black bands above and below the wallpaper: the top bar and the bottom
+# letterbox band (where stack dots live).
+#   omarchy-bands black|clear|toggle   set them   (no argument: print the mode)
+# Clear shows the wallpaper through both (the notch shows too); the bottom band
+# still reserves its height, and the dots get a soft pill so they stay legible.
+file=~/.config/omarchy/bands
+current=$(cat "$file" 2>/dev/null); [[ $current == clear ]] || current=black
+case ${1:-} in
+  "") echo "$current"; exit ;;
+  toggle) [[ $current == clear ]] && mode=black || mode=clear ;;
+  black|clear) mode=$1 ;;
+  *) echo "usage: omarchy-bands [black|clear|toggle]" >&2; exit 2 ;;
+esac
+echo "$mode" >"$file"
+[[ $mode == clear ]] && omarchy-bar background none >/dev/null || omarchy-bar background opaque >/dev/null

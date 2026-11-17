@@ -1,6 +1,7 @@
 import Quickshell
 import Quickshell.Io
 import Quickshell.Wayland
+import Quickshell.Hyprland
 import QtQuick
 import qs.Commons
 import qs.Commons as Commons
@@ -1306,12 +1307,25 @@ Item {
     onShownChanged: if (!shown) { cardTop = -1; maxRowsHeight = -1 }
     onTargetScreenChanged: { cardTop = -1; maxRowsHeight = -1 }
 
-    // The black notch bar and the black dot band read as part of the
-    // hardware, so the dimming stops short of both.
+    // The black top bar and the black dot band read as part of the
+    // hardware, so the dimming stops short of both: exactly the space this
+    // display reserves (32pt under the notch, 26 on a display without one).
+    // With clear bands (omarchy-bands clear) there is no hardware look to
+    // keep, so it dims everything.
+    FileView {
+      id: bandsFile
+      path: Quickshell.env("HOME") + "/.config/omarchy/bands"
+      watchChanges: true
+      onFileChanged: reload()
+      printErrors: false
+    }
+    readonly property bool clearBands: bandsFile.loaded && bandsFile.text().trim() === "clear"
+    readonly property var hyprMonitor: panel.screen ? Hyprland.monitorFor(panel.screen) : null
+    readonly property var reserved: hyprMonitor && hyprMonitor.lastIpcObject ? hyprMonitor.lastIpcObject.reserved : null
     Rectangle {
       anchors.fill: parent
-      anchors.topMargin: 32
-      anchors.bottomMargin: 32
+      anchors.topMargin: panel.clearBands ? 0 : (panel.reserved ? panel.reserved[1] : 32)
+      anchors.bottomMargin: panel.clearBands ? 0 : (panel.reserved ? panel.reserved[3] : 32)
       color: root.scrim
     }
 

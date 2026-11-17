@@ -1,6 +1,6 @@
 {
   "bar": {
-    "background": "opaque",
+    "background": "none",
     "layout": {
       "center": [],
       "centerBegin": [],
@@ -15,8 +15,8 @@
       ],
       "right": [
         {
-          "id": "bradgessler.tray",
-          "headless": true
+          "headless": true,
+          "id": "bradgessler.tray"
         },
         {
           "id": "omarchy.power",
@@ -31,8 +31,8 @@
       ],
       "tray": [
         {
-          "id": "omarchy.indicators",
-          "alwaysShow": true
+          "alwaysShow": true,
+          "id": "omarchy.indicators"
         },
         {
           "id": "omarchy.system-update"
@@ -90,6 +90,12 @@
     },
     "position": "top"
   },
+  "cloneSourceRestores": [
+    "bradgessler.menu"
+  ],
+  "disabledPlugins": [
+    "omarchy.menu"
+  ],
   "dock": {
     "autohide": true,
     "pinned": [
@@ -113,11 +119,5 @@
       "id": "bradgessler.letterbox"
     }
   ],
-  "version": 1,
-  "disabledPlugins": [
-    "omarchy.menu"
-  ],
-  "cloneSourceRestores": [
-    "bradgessler.menu"
-  ]
+  "version": 1
 }

@@ -2,6 +2,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Wayland
+import Quickshell.Io
 import qs.Commons
 
 // Windows snapped into the same omarchy-snap panel form a stack. Each stack of
@@ -12,6 +13,17 @@ Item {
   id: root
 
   property var shell: null
+
+  // With clear bands (omarchy-bands clear) the dots sit on the wallpaper, so
+  // each row gets a soft dark pill behind it, like an iOS page indicator.
+  FileView {
+    id: bandsFile
+    path: Quickshell.env("HOME") + "/.config/omarchy/bands"
+    watchChanges: true
+    onFileChanged: reload()
+    printErrors: false
+  }
+  readonly property bool clearBands: bandsFile.loaded && bandsFile.text().trim() === "clear"
   property var manifest: null
 
   // Must match omarchy-snap: the gap around and between snapped windows, and
@@ -166,6 +178,17 @@ Item {
           id: dots
           required property var modelData
           spacing: 0
+
+          Rectangle {
+            visible: root.clearBands
+            parent: dots.parent
+            z: -1
+            x: dots.x - 4; width: dots.width + 8
+            height: 14; radius: 7
+            anchors.verticalCenter: parent.verticalCenter
+            color: Qt.rgba(0, 0, 0, 0.38)
+            antialiasing: true
+          }
           anchors.verticalCenter: parent.verticalCenter
           x: Math.round(modelData.centerX - strip.monitorX - width / 2)
 
