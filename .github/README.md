@@ -14,7 +14,7 @@ It isn't a fork, just an idea: a set of config files, scripts and shell plugins 
 
 ![Moving between panes and stacks](screenshots/panes.gif)
 
-**Stack indicators.** A slim band along the bottom of each display, about as tall as the gap between panes, shows a thin bar for every window in a stack. When a full-screen window covers other panes, their dots stay (dimmed) and the full-screen window gets one in the middle. They sit faint; when you switch, the dot for the window that just came forward fades up, then settles. Hovering the band lifts them so you can pick one. Click any dot to bring that window to the front.
+**Stack indicators.** A slim band along the bottom of each display, about as tall as the gap between panes, shows a dot for every window in a stack. When a full-screen window covers other panes, their dots stay (dimmed) and the full-screen window gets one in the middle. They sit faint; when you switch, the dot for the window that just came forward fades up, then settles. Hovering the band lifts them so you can pick one. Click any dot to bring that window to the front.
 
 ![Stack dots under a full-screen window](screenshots/stack-dots.png)
 
