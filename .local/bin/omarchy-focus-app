@@ -3,8 +3,9 @@
 # one forward (switching workspace or display as needed) and exit 0; otherwise
 # exit 1 so the caller launches it.
 #   omarchy-focus-app <desktop-id>     e.g. firefox, org.gnome.Nautilus
-# Web-app launchers (an Exec with a URL, like X or the Claude accounts) always
-# exit 1: their window class is the browser's, and they mean "open this page".
+# Web-app launchers (an Exec with a URL, like X) match their window by title
+# instead, via X-Calmarchy-Title=<regex> in the .desktop; without one they
+# always open the page.
 id=${1:?usage: omarchy-focus-app <desktop-id>}
 id=${id%.desktop}
 
@@ -19,7 +20,18 @@ wmclass=""
 if [[ -n $file ]]; then
   exec_line=$(sed -n 's/^Exec=//p' "$file" | head -1)
   wmclass=$(sed -n 's/^StartupWMClass=//p' "$file" | head -1)
-  [[ $exec_line == *://* ]] && exit 1
+  if [[ $exec_line == *://* ]]; then
+    # A web launcher: its windows are the browser's, so it can only be matched
+    # by window title, given as X-Calmarchy-Title (a regex) in its .desktop.
+    title_re=$(sed -n 's/^X-Calmarchy-Title=//p' "$file" | head -1)
+    [[ -n $title_re ]] || exit 1
+    addr=$(hyprctl -j clients | jq -r --arg re "$title_re" '
+      [ .[] | select(.mapped and .workspace.id > 0 and (.title | test($re))) ]
+      | sort_by(.focusHistoryID) | .[0].address // empty')
+    [[ -n $addr ]] || exit 1
+    hyprctl --batch "dispatch hl.dsp.focus({ window = \"address:$addr\" }); dispatch hl.dsp.window.bring_to_top()" >/dev/null
+    exit 0
+  fi
   if [[ $(sed -n 's/^Terminal=//p' "$file" | head -1) == true ]]; then
     # Omarchy runs terminal apps as org.omarchy.<command>.
     wmclass="org.omarchy.$(basename "$(awk '{print $1}' <<<"$exec_line")")"

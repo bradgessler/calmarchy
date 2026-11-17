@@ -7,3 +7,4 @@ Terminal=false
 Type=Application
 Icon=x
 StartupNotify=true
+X-Calmarchy-Title=(^| / )X( — Mozilla Firefox)?$
