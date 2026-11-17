@@ -58,3 +58,8 @@
 #nav-bar toolbarbutton:hover .toolbarbutton-icon,
 #nav-bar toolbarbutton:hover .toolbarbutton-badge-stack,
 #urlbar .urlbar-icon:hover { opacity: 0.9 !important; }
+
+/* No magnifying glass in an empty address bar: the icon spot only shows the
+   site's lock/identity once a page is loaded. */
+#urlbar[pageproxystate="invalid"] #identity-box,
+#urlbar[pageproxystate="invalid"] #identity-icon-box { display: none !important; }
