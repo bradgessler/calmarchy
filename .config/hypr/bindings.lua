@@ -70,11 +70,11 @@ for key, direction in pairs({ LEFT = "l", RIGHT = "r", UP = "u", DOWN = "d" }) d
   end)
 end
 
--- Super+Tab: next pane across all displays, wrapping (one pane: rotate its
--- stack). Super+Shift+Tab: next window stacked in this pane, same as Super+`.
--- Brad's choice: Tab moves between panes, Shift+Tab within one.
+-- Cmd+Tab (Super): panes across all displays, wrapping; Shift goes back. With
+-- one pane it rotates that pane's stack. Option+Tab (Alt) and Cmd+` rotate the
+-- windows stacked in the current pane; Shift goes back.
 o.rebind("SUPER + TAB", "Next pane (all displays)", "omarchy-pane-cycle next")
-o.rebind("SUPER + SHIFT + TAB", "Next window stacked in this pane", "omarchy-stack-cycle next")
+o.rebind("SUPER + SHIFT + TAB", "Previous pane", "omarchy-pane-cycle prev")
 
 -- Super+Left/Right move between panes, rolling over to the neighboring workspace
 -- past the last pane. Super+Up/Down move between stacked-vertical panes.
@@ -85,8 +85,8 @@ o.rebind("SUPER + UP", "Focus pane above", "omarchy-pane-focus up")
 o.rebind("SUPER + DOWN", "Focus pane below", "omarchy-pane-focus down")
 
 -- Alt+Tab rotates the stack too (was: focus next window, which ignores stacks).
-o.rebind("ALT + TAB", "Cycle stack or windows", "omarchy-window-cycle next")
-o.rebind("ALT + SHIFT + TAB", "Cycle stack or windows (reverse)", "omarchy-window-cycle prev")
+o.rebind("ALT + TAB", "Next window stacked in this pane", "omarchy-stack-cycle next")
+o.rebind("ALT + SHIFT + TAB", "Previous window stacked in this pane", "omarchy-stack-cycle prev")
 
 -- Super+T like Cmd+T: a new tab in the focused app (Ctrl+T; Ctrl+Shift+T in
 -- terminals). Was: Omarchy's float/tile toggle, which on these floating
