@@ -6,7 +6,7 @@ My [Omarchy](https://omarchy.org) setup on a MacBook Air (M2) running Asahi Linu
 
 ## What's different from stock Omarchy
 
-**Panes instead of tiling.** Every window sits in one of nine panes per display: full screen, left or right half, top or bottom half, or a quarter. Windows in the same pane form a *stack*. New windows open on top of the pane you're in and fade in already at full size.
+**Panes and stacks, no tabs.** I can't stand tabs, so there are none: no tab bars, no Hyprland groups, no Firefox tab strip. Instead every window sits in one of nine panes per display: full screen, left or right half, top or bottom half, or a quarter. Windows in the same pane form a *stack*, which plays the role tabs would. New windows open on top of the pane you're in and fade in already at full size. Cmd+Tab moves between panes and Option+Tab between the windows stacked in one.
 
 ![Moving between panes and stacks](screenshots/panes.gif)
 
@@ -24,7 +24,7 @@ My [Omarchy](https://omarchy.org) setup on a MacBook Air (M2) running Asahi Linu
 
 **Look.** Hand-made Monokai theme with a warm grey accent, the Inter UI font, 3pt window corners and hairline borders. No dock and no screensaver.
 
-**Firefox.** Square, compact toolbar with no tab strip; tabs still work with Ctrl+T, Ctrl+Tab and Ctrl+1–9. The address bar has no box at rest and no search-engine pill. DuckDuckGo is the default search, uBlock Origin Lite blocks ads using only built-in rules, new tabs are blank, and trackpad scrolling has a Mac-like glide.
+**Firefox.** Square, compact toolbar with no tab strip; open another window (Cmd+N) and it stacks instead. Tabs still exist underneath (Cmd+T, Ctrl+Tab) for when a site insists. The address bar has no box at rest and no search-engine pill. DuckDuckGo is the default search, uBlock Origin Lite blocks ads using only built-in rules, new tabs are blank, and trackpad scrolling has a Mac-like glide.
 
 ## Keys
 
