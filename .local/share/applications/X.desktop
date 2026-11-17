@@ -1,8 +1,8 @@
 [Desktop Entry]
 Version=1.0
 Name=X
-Exec=sh -c "\"$HOME/.local/bin/omarchy-firefox-webapp\" https://x.com/"
-StartupWMClass=firefox-webapp-x.com
+Exec=uwsm-app -- firefox --new-window https://x.com/
+StartupWMClass=firefox
 Terminal=false
 Type=Application
 Icon=x
