@@ -163,3 +163,11 @@
   opacity: 0.9 !important;
   margin: 0 !important;
 }
+
+/* Click-through at rest: the pill is a label, so clicks, scrolling and hover
+   reach the page under it. It only takes the mouse while the address is
+   being edited (Cmd+K > Address Bar). */
+#navigator-toolbox { pointer-events: none !important; }
+#navigator-toolbox:focus-within,
+:root:has(#urlbar[open]) #navigator-toolbox { pointer-events: auto !important; }
+#navigator-toolbox:hover { opacity: 0.55; }
