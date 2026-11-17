@@ -40,6 +40,7 @@ more windows in the same panel. No Hyprland groups or tabs (Brad rejects tabs).
 | `omarchy-new-window [--full]` | ~/.local/bin | Super+N (Cmd+N) new window of the focused app, stacked; Super+Shift+N `--full` fills the workspace |
 | `omarchy-panel-drop` | ~/.local/bin | Super+drag release picks a panel; dragged to another display it keeps its last panel (from `omarchy-snap --last`, memo in `$XDG_RUNTIME_DIR/omarchy-panels/`) |
 | Super+Shift+Ctrl+arrows | hypr/bindings.lua | move window to that display, same panel |
+| `omarchy-snap-dir` | ~/.local/bin, Ctrl+Alt+arrows | Up/Down: move to the display that way, same panel (no top/bottom halves; Brad: "we're moving panes around"). Left/Right: snap half; from that half already, carry to the next display's nearer half |
 | External display | hypr/monitors.lua | LG UltraFine 5K above the laptop, centered (-640x-1440), 3840x2160 @1.5. Native 5K is 2 tiles; Asahi drives one, so `preferred` loops connect/fail/drop. Each monitor gets its own workspaces 1-10 (DP-1 = ids 11-20) |
 | `omarchy-window-cycle`, `omarchy-stack-cycle`, `omarchy-pane-focus` | ~/.local/bin | Super/Alt+Tab rotate the stack; Super+arrows move focus |
 | Stack dots | ~/.config/omarchy/plugins/bradgessler-stacks/ | dots in the bottom letterbox band under each stack of 2+; front window brighter; click a dot to bring that window to the front (12pt hit target, hover brightens); polls every 400ms |
