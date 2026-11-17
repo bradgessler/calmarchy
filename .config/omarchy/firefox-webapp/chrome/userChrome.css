@@ -73,49 +73,34 @@
 #PanelUI-button, #fxa-toolbar-menu-button {
   display: none !important;
 }
-#urlbar-container { margin-inline: 0 !important; max-width: none !important; }
+/* The address is centered at a fixed width, not stretched across the bar. */
+#nav-bar-customization-target { justify-content: center !important; }
+#urlbar-container {
+  flex: 0 1 560px !important;
+  width: 560px !important;
+  max-width: 70vw !important;
+  margin-inline: auto !important;
+}
 #nav-bar { padding-inline: 4px !important; }
 #urlbar .urlbar-page-action, #star-button-box, #reader-mode-button,
 #translations-button, #picture-in-picture-button { display: none !important; }
 
-/* Floating URL pill: no toolbar across the top. The URL (and the extensions
-   button) float in a small pill at the bottom center of the browser pane, faded
-   and narrow at rest. While a page loads the pill widens to full strength
-   with a soft shimmer along its bottom edge, then settles back. Focusing the
-   address bar (Cmd+K > Address Bar, or Ctrl+L) widens it for typing. */
+/* The URL bar at the bottom: below the page, full width, like a status bar,
+   so it never covers anything. Nothing across the top. */
 #navigator-toolbox {
   position: fixed !important;
-  left: 50% !important;
-  bottom: 10px !important;
-  top: auto !important;
-  right: auto !important;
-  transform: translateX(-50%) !important;
-  width: 230px !important;
+  left: 0 !important; right: 0 !important; bottom: 0 !important; top: auto !important;
+  width: auto !important;
   z-index: 10 !important;
-  border: 1px solid var(--toolbar-field-border-color, rgba(127,127,127,.3)) !important;
-  border-radius: 8px !important;
-  overflow: hidden !important;
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35) !important;
-  opacity: 0.55;
-  transition: width 220ms ease-out, opacity 220ms ease-out !important;
+  border-top: 1px solid var(--toolbar-field-border-color, rgba(127,127,127,.3)) !important;
 }
-#navigator-toolbox:hover { opacity: 0.9; }
-:root:has(.tabbrowser-tab[selected][busy]) #navigator-toolbox {
-  width: min(560px, 60vw) !important;
-  opacity: 1;
-}
-#navigator-toolbox:focus-within,
-:root:has(#urlbar[open]) #navigator-toolbox {
-  width: min(720px, 80vw) !important;
-  opacity: 1;
-}
-#browser, #customization-container { margin-top: 0 !important; }
+#browser, #customization-container { margin-top: 0 !important; margin-bottom: 31px !important; }
 
-/* The loading shimmer. */
+/* The loading shimmer, along the top edge of the bar. */
 #navigator-toolbox::after {
   content: "";
   position: absolute;
-  left: 0; right: 0; bottom: 0;
+  left: 0; right: 0; top: 0;
   height: 2px;
   background: linear-gradient(90deg, transparent, rgba(168, 164, 142, 0.9), transparent);
   background-size: 40% 100%;
@@ -141,19 +126,3 @@
    address in place (Tab or Right accepts, Return goes); the pill stays one
    line. History and bookmarks are in Cmd+K. */
 #urlbar .urlbarView { display: none !important; }
-
-
-/* Click-through at rest: the pill is a label, so clicks, scrolling and hover
-   reach the page under it. It only takes the mouse while the address is
-   being edited (Cmd+K > Address Bar). */
-#navigator-toolbox { pointer-events: none !important; }
-#navigator-toolbox:focus-within,
-:root:has(#urlbar[open]) #navigator-toolbox { pointer-events: auto !important; }
-#navigator-toolbox:hover { opacity: 0.55; }
-
-/* Domain at rest: the narrow pill shows the shield and the domain (Firefox
-   draws the domain bright and the path dim), with the path fading out at the
-   edge. Loading or editing widens it to the full URL. */
-#navigator-toolbox:not(:focus-within) #urlbar-input {
-  mask-image: linear-gradient(to right, black 80%, transparent) !important;
-}

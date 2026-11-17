@@ -35,13 +35,16 @@ done
 
 # Firefox ignores search defaults written into profile files, so DuckDuckGo
 # and the ad blocker go in through the system-wide policy file.
-say "Firefox policy (DuckDuckGo default, uBlock Origin Lite)"
+say "Firefox policy (DuckDuckGo default, uBlock Origin Lite, page-colour bar)"
 packaged=/usr/lib/firefox/distribution/policies.json
 tmp=$(mktemp)
 jq '.policies.SearchEngines = {"Default": "DuckDuckGo"}
     | .policies.ExtensionSettings["uBOLiteRedux@raymondhill.net"] = {
         "installation_mode": "force_installed",
-        "install_url": "https://addons.mozilla.org/firefox/downloads/latest/ublock-origin-lite/latest.xpi" }' \
+        "install_url": "https://addons.mozilla.org/firefox/downloads/latest/ublock-origin-lite/latest.xpi" }
+    | .policies.ExtensionSettings["ATBC@EasonWong"] = {
+        "installation_mode": "force_installed",
+        "install_url": "https://addons.mozilla.org/firefox/downloads/latest/adaptive-tab-bar-colour/latest.xpi" }' \
   "$( [[ -f $packaged ]] && echo "$packaged" || echo /dev/null)" 2>/dev/null >"$tmp" ||
   jq -n '{policies: {SearchEngines: {Default: "DuckDuckGo"}, ExtensionSettings: {"uBOLiteRedux@raymondhill.net": {installation_mode: "force_installed", install_url: "https://addons.mozilla.org/firefox/downloads/latest/ublock-origin-lite/latest.xpi"}}}}' >"$tmp"
 sudo install -D -m 644 "$tmp" /etc/firefox/policies/policies.json
