@@ -93,8 +93,25 @@ Item {
     var glyphs = ["󰂎", "󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"]
     return glyphs[Math.round(batteryLevel * 10)]
   }
-  readonly property string batteryValue: !batteryPresent ? "AC power"
-    : Math.round(batteryLevel * 100) + "%" + (charging ? (batteryLevel >= 1 ? " · Full" : " · Charging") : "")
+  // Where the power comes from and how fast it moves: the draw on battery
+  // (with time left), the charge rate when plugged in.
+  readonly property bool onBattery: UPower.onBattery
+  readonly property int watts: batteryPresent ? Math.round(Math.abs(battery.changeRate)) : 0
+  function duration(seconds) {
+    if (!(seconds > 0)) return ""
+    var h = Math.floor(seconds / 3600), m = Math.round((seconds % 3600) / 60)
+    return h > 0 ? h + "h " + m + "m" : m + "m"
+  }
+  readonly property string batteryValue: {
+    if (!batteryPresent) return "AC power"
+    var pct = Math.round(batteryLevel * 100) + "%"
+    if (onBattery) {
+      var left = duration(battery.timeToEmpty)
+      return pct + (watts ? " · " + watts + " W" : "") + (left ? " · " + left : "")
+    }
+    if (batteryLevel >= 0.995 || battery.state === UPowerDeviceState.FullyCharged) return pct + " · Plugged in"
+    return pct + " · Charging" + (watts ? " " + watts + " W" : "")
+  }
 
   // ---------- Sound ----------
   readonly property var sink: Pipewire.defaultAudioSink
@@ -168,7 +185,7 @@ Item {
   readonly property var tiles: [
     { label: "Wi-Fi", glyph: wifiGlyph, value: wifiValue, dim: netType === "", command: "omarchy-shell shell summon omarchy.network" },
     { label: "Bluetooth", glyph: btOn ? (btConnected.length ? "󰂱" : "󰂯") : "󰂲", value: btValue, dim: !btOn, command: "omarchy-shell shell summon omarchy.bluetooth" },
-    { label: "Battery", glyph: batteryGlyph, value: batteryValue, dim: false, command: "omarchy-shell shell summon omarchy.power" },
+    { label: "Power", glyph: onBattery ? batteryGlyph : (charging ? "󰂄" : "󰚥"), value: batteryValue, dim: false, command: "omarchy-shell shell summon omarchy.power" },
     { label: "Sound", glyph: soundGlyph, value: soundValue, dim: muted, command: "omarchy-shell shell summon omarchy.audio" },
     { label: "Weather", glyph: weatherGlyph, value: weatherValue, dim: false, command: "omarchy-shell shell summon omarchy.weather" },
     { label: "Updates", glyph: updateAvailable ? "󰚰" : "󰄬", value: updateAvailable ? "Available" : "Up to date", dim: !updateAvailable, command: "omarchy-launch-floating-terminal-with-presentation omarchy-update" }
