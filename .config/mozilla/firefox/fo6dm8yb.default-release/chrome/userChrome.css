@@ -135,18 +135,8 @@
 #statuspanel { inset-inline-start: auto !important; inset-inline-end: 10px !important; bottom: 10px !important; }
 #statuspanel-label { border-radius: 8px !important; }
 
-/* Suggestions open upward from the pill (it sits at the bottom of the pane),
-   and may spill out of the pill's rounded box while open. */
-:root:has(#urlbar[open]) #navigator-toolbox { overflow: visible !important; }
-#urlbar[open] {
-  top: auto !important;
-  bottom: 0 !important;
-  display: flex !important;
-  flex-direction: column-reverse !important;
-}
-#urlbar[open] > .urlbarView {
-  margin-block: 0 6px !important;
-  border-radius: 8px !important;
-  box-shadow: 0 -4px 18px rgba(0, 0, 0, 0.35) !important;
-}
-#urlbar[open] .urlbarView-body-outer { max-height: 50vh !important; overflow-y: auto !important; }
+
+/* Inline autocomplete only: no suggestions list. Typing fills the rest of the
+   address in place (Tab or Right accepts, Return goes); the pill stays one
+   line. History and bookmarks are in Cmd+K. */
+#urlbar .urlbarView { display: none !important; }

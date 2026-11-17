@@ -30,3 +30,7 @@ user_pref("browser.startup.homepage", "about:blank");
 // No search-engine switcher pill in the address bar; just type.
 user_pref("browser.urlbar.searchModeSwitcher.featureGate", false);
 user_pref("browser.urlbar.scotchBonnet.enableOverride", false);
+// Inline autocomplete in the address bar (the suggestions list is hidden by
+// userChrome.css): fill whole URLs, learning from what you pick.
+user_pref("browser.urlbar.autoFill", true);
+user_pref("browser.urlbar.autoFill.adaptiveHistory.enabled", true);
