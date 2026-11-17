@@ -14,7 +14,7 @@ It isn't a fork, just an idea: a set of config files, scripts and shell plugins 
 
 ![Moving between panes and stacks](screenshots/panes.gif)
 
-**Stack dots.** A band along the bottom of each display shows a dot for every window in a stack. When a full-screen window covers other panes, their dots stay (dimmed) and the full-screen window gets one in the middle. Click any dot to bring that window to the front.
+**Stack dots.** A band along the bottom of each display shows a dot for every window in a stack. When a full-screen window covers other panes, their dots stay (dimmed) and the full-screen window gets one in the middle. They sit faint until something changes: switching windows, or hovering over the band, brings them up for a moment. Click any dot to bring that window to the front.
 
 ![Stack dots under a full-screen window](screenshots/stack-dots.png)
 

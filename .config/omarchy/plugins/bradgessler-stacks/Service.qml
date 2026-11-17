@@ -33,6 +33,10 @@ Item {
   readonly property int gap: 8
   readonly property int tolerance: 6
   property var stacks: []
+  // Dots sit faint at rest and come up while something is switching (and
+  // while the pointer is over the band; see the strip's HoverHandler).
+  property bool lively: false
+  Timer { id: livelyTimer; interval: 1600; onTriggered: root.lively = false }
 
   // Every frame omarchy-snap can put a window in, for one monitor.
   function framesFor(m) {
@@ -119,7 +123,13 @@ Item {
       })
     }
     var json = JSON.stringify(out)
-    if (json !== JSON.stringify(root.stacks)) root.stacks = out
+    if (json !== JSON.stringify(root.stacks)) {
+      root.stacks = out
+      // Something switched (focus moved, a stack rotated, a window came or
+      // went): bring the dots up for a moment.
+      root.lively = true
+      livelyTimer.restart()
+    }
   }
 
   // Floating moves and resizes raise no Hyprland event, so poll lightly.
@@ -158,6 +168,8 @@ Item {
       readonly property int monitorX: ipc ? ipc.x : 0
       // The bottom letterbox band's height (its reserved edge).
       readonly property int bandHeight: ipc && ipc.reserved && ipc.reserved[3] > 0 ? ipc.reserved[3] : 32
+      HoverHandler { id: bandHover }
+      readonly property bool lively: root.lively || bandHover.hovered
 
       // Drawn over the black bottom band, under the stacks. Reserves nothing.
       // The band is otherwise dead space, so the whole strip takes clicks:
@@ -207,8 +219,10 @@ Item {
                 width: 6; height: 6; radius: 3
                 antialiasing: true
                 color: Color.bar.text
-                opacity: hit.modelData.front ? 0.85 : (area.containsMouse ? 0.6 : 0.3)
-                Behavior on opacity { NumberAnimation { duration: Style.duration(120); easing.type: Easing.OutCubic } }
+                opacity: area.containsMouse ? 0.75
+                  : hit.modelData.front ? (strip.lively ? 0.85 : 0.4)
+                  : (strip.lively ? 0.35 : 0.16)
+                Behavior on opacity { NumberAnimation { duration: Style.duration(strip.lively ? 120 : 600); easing.type: Easing.OutCubic } }
               }
 
               MouseArea {
