@@ -85,22 +85,45 @@
 #urlbar .urlbar-page-action, #star-button-box, #reader-mode-button,
 #translations-button, #picture-in-picture-button { display: none !important; }
 
-/* The URL bar at the bottom: below the page, full width, like a status bar,
-   so it never covers anything. Nothing across the top. */
+/* Frosted-glass URL pill: no bar across the top or bottom. The address floats
+   in a small pill centered at the bottom of the page, over it. At rest it is
+   invisible; with the mouse over it, or while typing an address, it fades up
+   and takes clicks. While a page loads it shows faintly, with a shimmer. */
+#navigator-toolbox, #nav-bar { background: transparent !important; }
 #navigator-toolbox {
   position: fixed !important;
-  left: 0 !important; right: 0 !important; bottom: 0 !important; top: auto !important;
-  width: auto !important;
+  left: 50% !important;
+  bottom: 12px !important;
+  top: auto !important;
+  right: auto !important;
+  transform: translateX(-50%) !important;
+  width: min(560px, 70vw) !important;
   z-index: 10 !important;
-  border-top: 1px solid var(--toolbar-field-border-color, rgba(127,127,127,.3)) !important;
+  border: 1px solid rgba(255, 255, 255, 0.10) !important;
+  border-radius: 10px !important;
+  /* Firefox can't blur the web page behind its own UI (backdrop-filter only
+     sees chrome), so this is near-solid rather than frosted. */
+  background-color: rgba(39, 40, 34, 0.94) !important;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25) !important;
+  overflow: hidden !important;
+  opacity: 0;
+  transition: opacity 220ms ease-out !important;
 }
-#browser, #customization-container { margin-top: 0 !important; margin-bottom: 31px !important; }
+#navigator-toolbox:hover,
+#navigator-toolbox:focus-within,
+:root:has(#urlbar[open]) #navigator-toolbox { opacity: 1; }
+:root:has(.tabbrowser-tab[selected][busy]) #navigator-toolbox { opacity: 0.6; }
+#browser, #customization-container { margin-top: 0 !important; margin-bottom: 0 !important; }
+#urlbar-background, #urlbar, #urlbar-input-container {
+  background: transparent !important;
+  border-color: transparent !important;
+}
 
-/* The loading shimmer, along the top edge of the bar. */
+/* The loading shimmer, along the bottom edge of the pill. */
 #navigator-toolbox::after {
   content: "";
   position: absolute;
-  left: 0; right: 0; top: 0;
+  left: 0; right: 0; bottom: 0;
   height: 2px;
   background: linear-gradient(90deg, transparent, rgba(168, 164, 142, 0.9), transparent);
   background-size: 40% 100%;

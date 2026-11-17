@@ -1,0 +1,10 @@
+/* Room at the end of every page for the floating address pill (userChrome.css):
+   scroll all the way down and the last of the page sits clear above it. The
+   space is generated after <body>, so it takes the page's own background; a
+   page whose layout fits the window exactly (most web apps) clips it away. */
+html::after {
+  content: "" !important;
+  display: block !important;
+  height: 64px !important;
+  pointer-events: none !important;
+}
