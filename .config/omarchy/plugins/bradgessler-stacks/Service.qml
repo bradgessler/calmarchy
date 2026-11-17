@@ -194,8 +194,8 @@ Item {
             visible: root.clearBands
             parent: dots.parent
             z: -1
-            x: dots.x - 4; width: dots.width + 8
-            height: 14; radius: 7
+            x: dots.x - 3; width: dots.width + 6
+            height: Math.max(7, strip.height - 3); radius: height / 2
             anchors.verticalCenter: parent.verticalCenter
             color: Qt.rgba(0, 0, 0, 0.38)
             antialiasing: true
@@ -211,11 +211,12 @@ Item {
             Item {
               id: hit
               required property var modelData
-              width: 12; height: strip.height
+              width: 18; height: strip.height
 
               Rectangle {
                 anchors.centerIn: parent
-                width: 6; height: 6; radius: 3
+                // A thin rounded bar rather than a dot: elegant in a slim band.
+                width: 14; height: 3; radius: 1.5
                 antialiasing: true
                 color: Color.bar.text
                 // The window that just came to the front: its dot fades up, then

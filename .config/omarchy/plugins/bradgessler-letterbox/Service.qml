@@ -13,8 +13,9 @@ Item {
   property var shell: null
   property var manifest: null
 
-  // Matches the top bar, which is 32pt to cover the MacBook notch.
-  readonly property int bandHeight: 32
+  // About the gap between panes (8pt), so the space under the windows matches
+  // the space between them; just room for the thin stack indicators.
+  readonly property int bandHeight: 10
 
   // "black" (default) or "clear", from ~/.config/omarchy/bands, set by
   // omarchy-bands. Clear still reserves the band so windows stop above it.
