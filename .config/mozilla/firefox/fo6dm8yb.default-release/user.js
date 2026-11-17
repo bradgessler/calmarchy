@@ -21,3 +21,6 @@ user_pref("apz.gtk.kinetic_scroll.enabled", true);
 // Match macOS "looks like 1440x900" on a 13" MacBook: 1.75 device px per CSS px
 // instead of the compositor's 2x, which made everything ~14% too big.
 user_pref("layout.css.devPixelsPerPx", "1.75");
+// New tabs and new windows open blank (no Firefox Home, shortcuts or stories).
+user_pref("browser.newtabpage.enabled", false);
+user_pref("browser.startup.homepage", "about:blank");
