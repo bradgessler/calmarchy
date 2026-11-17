@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Name=Claude (Rocketship)
+Comment=claude.ai signed into the Rocketship account, in its own Firefox container
+Exec=uwsm-app -- firefox --new-window "ext+container:name=Rocketship&color=orange&icon=briefcase&url=https://claude.ai/"
+StartupWMClass=firefox
+Terminal=false
+Type=Application
+Icon=claude
+StartupNotify=true

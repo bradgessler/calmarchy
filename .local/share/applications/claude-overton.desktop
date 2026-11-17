@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Name=Claude (Overton)
+Comment=claude.ai signed into the Overton account, in its own Firefox container
+Exec=uwsm-app -- firefox --new-window "ext+container:name=Overton&color=blue&icon=briefcase&url=https://claude.ai/"
+StartupWMClass=firefox
+Terminal=false
+Type=Application
+Icon=claude
+StartupNotify=true
