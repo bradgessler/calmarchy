@@ -206,10 +206,10 @@ Item {
             antialiasing: true
           }
           anchors.verticalCenter: parent.verticalCenter
-          // Optical centering, measured: the window's shadow (range 7, power 4)
-          // is visible to ~3.5pt below the window, so the bars sit in the middle
-          // of the clear space under it, not the middle of the 12pt gap.
-          anchors.verticalCenterOffset: 2
+          // Centered in the gap from the window's edge to the screen's edge
+          // (Brad reads the shadow as gap, not window). Measured with the
+          // brightness-profile check in the calmarchy skill.
+          anchors.verticalCenterOffset: 0
           x: Math.round(modelData.centerX - strip.monitorX - width / 2)
 
           Repeater {
