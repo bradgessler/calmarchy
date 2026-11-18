@@ -84,7 +84,7 @@ Item {
       var frames = framesByMonitor[ipc.monitor]
       if (!frames) continue
       var w = {
-        address: String(ipc.address), ws: ipc.workspace.id,
+        address: String(ipc.address), ws: ipc.workspace.id, mon: ipc.monitor,
         x: ipc.at[0], y: ipc.at[1], w: ipc.size[0], h: ipc.size[1],
         recency: ipc.focusHistoryID === undefined ? 9999 : ipc.focusHistoryID
       }
@@ -120,7 +120,7 @@ Item {
       g.sort(function(p, q) { return p.address < q.address ? -1 : 1 })
       var front = fronts[key]
       out.push({
-        ws: g[0].ws, centerX: g[0].x + g[0].w / 2, buried: !!buried[key],
+        key: key, ws: g[0].ws, mon: g[0].mon, centerX: g[0].x + g[0].w / 2, buried: !!buried[key],
         windows: g.map(function(x) { return { address: x.address, front: x.address === front.address && !buried[key] } })
       })
     }
@@ -188,12 +188,29 @@ Item {
       implicitHeight: bandHeight
 
       Repeater {
-        model: root.stacks.filter(function(s) { return s.ws === strip.workspaceId })
+        // Every stack on this display's workspaces is kept; only the shown
+        // workspace's are visible, so switching workspaces crossfades instead
+        // of popping. (Hyprland doesn't report swipe progress, so this follows
+        // the switch, not the finger.)
+        // ScriptModel keeps each stack's delegate alive across updates (keyed by
+        // workspace:monitor:panel), so its opacity animates instead of resetting.
+        model: ScriptModel {
+          objectProp: "key"
+          values: root.stacks.filter(function(s) { return strip.ipc && s.mon === strip.ipc.id })
+        }
 
         Row {
           id: dots
           required property var modelData
           spacing: 0
+          readonly property bool shown: modelData.ws === strip.workspaceId
+          // Start invisible and bind afterwards, so a freshly created row fades
+          // up too (a binding's first value never animates).
+          opacity: 0
+          Component.onCompleted: opacity = Qt.binding(function() { return dots.shown ? 1 : 0 })
+          visible: opacity > 0
+          enabled: shown
+          Behavior on opacity { NumberAnimation { duration: 350; easing.type: Easing.InOutQuad } }
 
           // No backdrop pill: in the bottom margin it butted against the window
           // edge. The bars float alone, centered between window and screen edge.
