@@ -263,9 +263,25 @@ Item {
           readonly property bool shown: modelData.ws === strip.workspaceId
           // During a swipe on this display, follow the fingers; otherwise show
           // the active workspace's indicators.
+          // Mid-swipe, each indicator hands over exactly where the windows do.
+          // The incoming workspace slides in from one side; an indicator a
+          // fraction t across the screen (from that side) is covered by the
+          // incoming windows at progress t. So a leaving indicator fades out
+          // over [0, t] and an arriving one fades in over [t, 1]: nothing ever
+          // shows under a window (a left-half pane's goes by 1/4 of a swipe to
+          // the right, a full-screen one's by half).
+          readonly property real handover: {
+            var w = strip.width > 0 ? strip.width : 1
+            var x = Math.max(0, Math.min(1, (modelData.centerX - strip.monitorX) / w))
+            // Fingers right (dx > 0): windows move right, new ones enter from the left.
+            return root.swipeDx > 0 ? x : 1 - x
+          }
           readonly property real target: (root.swiping && strip.ipc && root.swipeMon === strip.ipc.id)
-            ? (modelData.ws === root.swipeFrom ? 1 - root.swipeProgress
-               : modelData.ws === root.swipeTarget ? root.swipeProgress : 0)
+            ? (modelData.ws === root.swipeFrom
+                 ? Math.max(0, Math.min(1, 1 - root.swipeProgress / Math.max(0.001, handover)))
+               : modelData.ws === root.swipeTarget
+                 ? Math.max(0, Math.min(1, (root.swipeProgress - handover) / Math.max(0.001, 1 - handover)))
+               : 0)
             : (shown ? 1 : 0)
           // Start invisible and bind afterwards, so a freshly created row fades
           // up too (a binding's first value never animates).
