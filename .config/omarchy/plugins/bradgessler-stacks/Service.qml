@@ -26,6 +26,7 @@ Item {
     printErrors: false
   }
   readonly property bool clearBands: bandsFile.loaded && bandsFile.text().trim() === "clear"
+
   property var manifest: null
 
   // Must match omarchy-snap: the gap around and between snapped windows, and

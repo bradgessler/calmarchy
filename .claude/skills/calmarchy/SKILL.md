@@ -100,6 +100,9 @@ keeps tabs; quitting doesn't restore them).
 
 ## Things that crash or bite
 
+- Commit only the files you changed (`dotfiles commit <paths>`), never `commit -am`: on 2026-11-17 an accidental bar drag (bar.position "left" in shell.json) got swept into an unrelated commit.
+- The bar is draggable to other screen edges by its empty space (Omarchy, no lock setting); `keep_bar_on_top()` in looknfeel.lua checks shell.json every 2s and runs `omarchy-bar position top`. Plugin QML guards didn't fire after hot reload; Hyprland Lua timers did.
+
 - Swipes scale per display: `scale_swipes()` in looknfeel.lua sets swipe distance 350·k and the workspaces slide 4.5·k, k = sqrt(width/1280) capped 1.0–1.6 (laptop 350/450ms, UltraFine 495/636ms), re-applied 30ms after monitor.focused / workspace.active (events fire before focus lands). Hyprland has no per-monitor setting or swipe-progress hook.
 
 - Text replacements: espanso 2.4.1 built from source (the AUR recipe's cargo-make task is gone; build with `cargo build --release --no-default-features --features wayland,modulo,vendored-tls -p espanso`), installed at /usr/local/bin/espanso with `cap_dac_override+p`, user service via `espanso service register`. Rules in ~/.config/espanso/match/. It reads the real keyboard (evdev), so `wtype` can't test it.

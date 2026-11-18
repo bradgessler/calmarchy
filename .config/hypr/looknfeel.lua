@@ -140,3 +140,17 @@ end
 -- Easier edge resizing: the grab zone outside each window's edge spans the
 -- whole 12pt gap between panes (Omarchy's 8 was hard to hit).
 hl.config({ general = { extend_border_grab_area = 12 } })
+
+-- The bar stays on top. Omarchy lets you drag the bar's empty space to another
+-- screen edge, which is easy to do by accident without title bars (reaching for
+-- the top of a window), and has no setting to lock it. Check every two seconds
+-- and put it back.
+local function keep_bar_on_top()
+  local f = io.open((os.getenv("HOME") or "") .. "/.config/omarchy/shell.json", "r")
+  if not f then return end
+  local text = f:read("*a") or ""
+  f:close()
+  local pos = text:match('"bar"%s*:.-"position"%s*:%s*"(%a+)"')
+  if pos and pos ~= "top" then hl.exec_cmd("omarchy-bar position top") end
+end
+hl.timer(keep_bar_on_top, { timeout = 2000, type = "repeat" })
