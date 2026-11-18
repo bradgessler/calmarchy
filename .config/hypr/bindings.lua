@@ -229,3 +229,8 @@ panel_open_sync()
 -- content; their chrome lives here. (Was: the keybindings list, still
 -- reachable by typing "keybindings" in Spotlight.)
 o.rebind("SUPER + K", "Menu for the app in front", "omarchy-pane-menu")
+
+-- Emoji picker on Ctrl+Cmd+Space, the macOS shortcut (Omarchy's own is
+-- Super+Ctrl+E). Replaces Omarchy's background switcher on this chord, which
+-- stays in Spotlight.
+o.rebind("SUPER + CTRL + SPACE", "Emoji picker", { panel = "omarchy.emojis" })

@@ -64,6 +64,7 @@ The Mac's Cmd key is Super here.
 | Ctrl+Option+U/I/J/K | quarters |
 | Cmd+N / Cmd+Shift+N | new window of this app, in this pane / full screen |
 | Cmd+T | new tab (in Firefox: a new window on this stack, since tabs are off) |
+| Ctrl+Cmd+Space | emoji picker |
 | Cmd+drag | move a window; letting go drops it into a pane |
 | 3 or 4 fingers left/right | switch workspace |
 | 4-finger spread / pinch | show desktop / bring windows back |
