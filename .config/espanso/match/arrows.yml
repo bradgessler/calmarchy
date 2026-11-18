@@ -1,0 +1,11 @@
+# Calmarchy text replacements: typed arrows become Unicode arrows, everywhere.
+# Each fires as soon as the last character is typed.
+matches:
+  - trigger: "-->"
+    replace: "→"
+  - trigger: "<--"
+    replace: "←"
+  - trigger: "vvv"
+    replace: "↓"
+  - trigger: "^^^"
+    replace: "↑"

@@ -100,6 +100,8 @@ keeps tabs; quitting doesn't restore them).
 
 ## Things that crash or bite
 
+- Text replacements: espanso 2.4.1 built from source (the AUR recipe's cargo-make task is gone; build with `cargo build --release --no-default-features --features wayland,modulo,vendored-tls -p espanso`), installed at /usr/local/bin/espanso with `cap_dac_override+p`, user service via `espanso service register`. Rules in ~/.config/espanso/match/. It reads the real keyboard (evdev), so `wtype` can't test it.
+
 - Scrolling goes to the window under the pointer: `follow_mouse = 2` (pointer follows the mouse, keyboard focus on click), reapplied in input.lua on load, config.reloaded, workspace.active and monitor.focused, because Omarchy's floating mode forces 0.
 
 - **Never resize or move a window in `window.open_early`**: it segfaults Hyprland

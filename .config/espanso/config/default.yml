@@ -1,0 +1,7 @@
+# Calmarchy: keep espanso quiet. No tray icon, no notifications, no search
+# bar shortcut (Spotlight and Cmd+K cover that).
+show_icon: false
+show_notifications: false
+search_shortcut: off
+keyboard_layout:
+  layout: us

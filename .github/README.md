@@ -46,6 +46,8 @@ DuckDuckGo is the default search, uBlock Origin Lite blocks ads using only built
 
 **Look.** Hand-made Monokai theme with a warm grey accent, the Inter UI font, 3pt window corners, neutral hairline borders. Every window has the same faint hairline edge and a small shadow that stays inside the gap between panes, so it never falls on another window; the active window's is darker. Nothing dims, so colours inside windows are never altered. Spotlight and Cmd+K cards get a faint hairline. No dock and no screensaver.
 
+**Typed arrows.** `-->` becomes →, `<--` ←, `vvv` ↓ and `^^^` ↑ as you type, in every app, using [espanso](https://espanso.org) (rules in `~/.config/espanso/match/arrows.yml`). espanso isn't packaged for ARM, so build it once: `cargo build --release --no-default-features --features wayland,modulo,vendored-tls -p espanso` in its source, then `sudo install -m755 target/release/espanso /usr/local/bin/ && sudo setcap cap_dac_override+p /usr/local/bin/espanso && espanso service register && espanso start`.
+
 ## Keys
 
 The Mac's Cmd key is Super here.
