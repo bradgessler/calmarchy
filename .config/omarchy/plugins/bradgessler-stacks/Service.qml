@@ -94,6 +94,16 @@ Item {
     onExited: swipeRetry.restart()
   }
   Timer { id: swipeRetry; interval: 30000; onTriggered: swipeProc.running = true }
+  // Safety net: once a workspace actually changes, any swipe is over, so a
+  // missed "end" can never leave indicators stuck.
+  Connections {
+    target: Hyprland
+    function onRawEvent(event) {
+      if (root.swiping && (event.name === "workspace" || event.name === "workspacev2"))
+        swipeSettle.restart()
+    }
+  }
+  Timer { id: swipeSettle; interval: 600; onTriggered: root.swiping = false }
 
   // Every frame omarchy-snap can put a window in, for one monitor.
   function framesFor(m) {
