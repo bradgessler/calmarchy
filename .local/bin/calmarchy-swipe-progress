@@ -13,7 +13,10 @@ for e in /dev/input/event*; do
 done
 [[ -n $dev && -r $dev ]] || { echo "no readable touchpad" >&2; exit 1; }
 
-exec stdbuf -oL libinput debug-events --device "$dev" 2>/dev/null | stdbuf -oL awk '
+# When the shell stops this script (restart, reload), take the watcher down too;
+# otherwise libinput-debug-events outlives it and orphans pile up.
+trap 'kill 0' EXIT TERM INT HUP
+stdbuf -oL libinput debug-events --device "$dev" 2>/dev/null | stdbuf -oL awk '
   /GESTURE_SWIPE_BEGIN/  { n = $NF; if (n >= 3) { on = 1; print "begin", n } else on = 0; next }
   /GESTURE_SWIPE_UPDATE/ && on {
     # "... GESTURE_SWIPE_UPDATE +1.234s  3  5.12/-0.30 ( 4.80/-0.28 unaccelerated)"
@@ -25,4 +28,5 @@ exec stdbuf -oL libinput debug-events --device "$dev" 2>/dev/null | stdbuf -oL a
     next
   }
   /GESTURE_SWIPE_END/ && on { on = 0; print "end"; next }
-'
+' &
+wait
