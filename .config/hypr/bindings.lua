@@ -234,3 +234,8 @@ o.rebind("SUPER + K", "Menu for the app in front", "omarchy-pane-menu")
 -- Super+Ctrl+E). Replaces Omarchy's background switcher on this chord, which
 -- stays in Spotlight.
 o.rebind("SUPER + CTRL + SPACE", "Emoji picker", { panel = "omarchy.emojis" })
+
+-- The 🌐 Globe/Fn key, tapped alone, opens the emoji picker like macOS. It
+-- sends Linux KEY_FN (464, XKB code 472). Bound on release, which Hyprland skips
+-- when another key was pressed during the hold, so Fn+F1 and friends still work.
+o.bind("code:472", "Emoji picker (Globe key)", { panel = "omarchy.emojis" }, { release = true })
