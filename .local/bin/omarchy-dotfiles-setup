@@ -50,6 +50,11 @@ rm -f "$tmp"
 
 say "Signal: turn on Settings > General > Hide menu bar yourself (its actions are in Cmd+K)"
 
+say "Touchpad access for swipe-linked stack indicators (touchpad only)"
+pacman -Q libinput-tools >/dev/null 2>&1 || sudo pacman -S --needed --noconfirm libinput-tools
+sudo install -m 644 "$HOME/.local/share/calmarchy/70-calmarchy-touchpad.rules" /etc/udev/rules.d/
+sudo udevadm control --reload && sudo udevadm trigger --subsystem-match=input --action=change
+
 say "Theme (Monokai, misty forest wallpaper)"
 omarchy theme set monokai >/dev/null 2>&1 || true
 omarchy-theme-bg-set "$HOME/.local/state/omarchy/current/theme/backgrounds/3-tree-tops.webp" >/dev/null 2>&1 || true

@@ -1,0 +1,24 @@
+#!/bin/bash
+# Stream trackpad workspace swipes for the stack indicators, so they can fade as
+# part of the motion (bradgessler-stacks plugin). Prints one line per event:
+#   begin <fingers>      a 3/4-finger swipe started
+#   move <dx>            horizontal movement (libinput's accelerated delta, the
+#                        same one Hyprland moves workspaces by)
+#   end                  fingers lifted (or the swipe was cancelled)
+# Needs read access to the touchpad: /etc/udev/rules.d/70-calmarchy-touchpad.rules
+# (see the calmarchy skill). Exits if there's no touchpad or no access.
+dev=""
+for e in /dev/input/event*; do
+  udevadm info "$e" 2>/dev/null | grep -q 'ID_INPUT_TOUCHPAD=1' && { dev=$e; break; }
+done
+[[ -n $dev && -r $dev ]] || { echo "no readable touchpad" >&2; exit 1; }
+
+exec stdbuf -oL libinput debug-events --device "$dev" 2>/dev/null | stdbuf -oL awk '
+  /GESTURE_SWIPE_BEGIN/  { n = $NF; if (n >= 3) { on = 1; print "begin", n } else on = 0; next }
+  /GESTURE_SWIPE_UPDATE/ && on {
+    # "... GESTURE_SWIPE_UPDATE +1.234s  3  5.12/-0.30 ( 4.80/-0.28 unaccelerated)"
+    for (i = 1; i <= NF; i++) if ($i ~ /^-?[0-9.]+\/-?[0-9.]+$/) { split($i, d, "/"); print "move", d[1]; break }
+    next
+  }
+  /GESTURE_SWIPE_END/ && on { on = 0; print "end"; next }
+'

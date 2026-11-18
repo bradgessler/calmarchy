@@ -1,0 +1,5 @@
+# Calmarchy: let the logged-in user read the touchpad (only), so the stack
+# indicators can follow a workspace swipe as it happens. Keyboards are not
+# included; a touchpad reports finger positions, nothing typed.
+# Install: sudo install -m644 this file /etc/udev/rules.d/ && sudo udevadm control --reload && sudo udevadm trigger --subsystem-match=input --action=change
+SUBSYSTEM=="input", KERNEL=="event*", ENV{ID_INPUT_TOUCHPAD}=="1", TAG+="uaccess"

@@ -38,6 +38,63 @@ Item {
   property bool lively: false
   Timer { id: livelyTimer; interval: 1600; onTriggered: root.lively = false }
 
+  // ---- Swipes: the indicators are part of the motion ----
+  // calmarchy-swipe-progress streams the trackpad's 3/4-finger swipes (the same
+  // libinput deltas Hyprland moves workspaces by). While a swipe is under way,
+  // the leaving workspace's indicators fade 1 -> 0 and the arriving one's
+  // 0 -> 1 exactly as far as the fingers have gone; on release they finish over
+  // the rest of the slide. Swipe distance and slide time match looknfeel.lua's
+  // scale_swipes(): 350 and 450ms on the laptop, x sqrt(width/1280) capped 1.6.
+  property bool swiping: false
+  property real swipeDx: 0
+  property int swipeMon: -1
+  property int swipeFrom: -1
+  property real releaseMs: 350
+  function swipeScale() {
+    var mons = Hyprland.monitors.values
+    for (var i = 0; i < mons.length; i++) {
+      var mi = mons[i].lastIpcObject
+      if (mi && mi.id === root.swipeMon && mi.scale)
+        return Math.max(1, Math.min(1.6, Math.sqrt((mi.width / mi.scale) / 1280)))
+    }
+    return 1
+  }
+  readonly property real swipeProgress: swiping ? Math.min(1, Math.abs(swipeDx) / (350 * swipeScale())) : 0
+  // Fingers moving left (negative dx) go to the next workspace, staying inside
+  // the display's block of five (ids n*10+1 .. n*10+5).
+  readonly property int swipeTarget: {
+    if (swipeFrom < 1) return -1
+    var base = Math.floor((swipeFrom - 1) / 10) * 10, slot = swipeFrom - base
+    var next = slot + (swipeDx < 0 ? 1 : -1)
+    return next >= 1 && next <= 5 ? base + next : -1
+  }
+  Process {
+    id: swipeProc
+    command: ["calmarchy-swipe-progress"]
+    running: true
+    stdout: SplitParser {
+      onRead: function(line) {
+        var parts = String(line).split(" ")
+        if (parts[0] === "begin") {
+          var fm = Hyprland.focusedMonitor
+          root.swipeMon = fm && fm.lastIpcObject ? fm.lastIpcObject.id : -1
+          root.swipeFrom = fm && fm.activeWorkspace ? fm.activeWorkspace.id : -1
+          root.swipeDx = 0
+          root.swiping = true
+        } else if (parts[0] === "move" && root.swiping) {
+          root.swipeDx += Number(parts[1]) || 0
+        } else if (parts[0] === "end" && root.swiping) {
+          // Finish over the part of the slide that's left.
+          root.releaseMs = Math.max(120, (1 - root.swipeProgress) * 450 * root.swipeScale())
+          root.swiping = false
+        }
+      }
+    }
+    // No touchpad access yet (or it restarted): try again later.
+    onExited: swipeRetry.restart()
+  }
+  Timer { id: swipeRetry; interval: 30000; onTriggered: swipeProc.running = true }
+
   // Every frame omarchy-snap can put a window in, for one monitor.
   function framesFor(m) {
     var r = m.reserved || [0, 0, 0, 0]
@@ -204,13 +261,24 @@ Item {
           required property var modelData
           spacing: 0
           readonly property bool shown: modelData.ws === strip.workspaceId
+          // During a swipe on this display, follow the fingers; otherwise show
+          // the active workspace's indicators.
+          readonly property real target: (root.swiping && strip.ipc && root.swipeMon === strip.ipc.id)
+            ? (modelData.ws === root.swipeFrom ? 1 - root.swipeProgress
+               : modelData.ws === root.swipeTarget ? root.swipeProgress : 0)
+            : (shown ? 1 : 0)
           // Start invisible and bind afterwards, so a freshly created row fades
           // up too (a binding's first value never animates).
           opacity: 0
-          Component.onCompleted: opacity = Qt.binding(function() { return dots.shown ? 1 : 0 })
+          Component.onCompleted: opacity = Qt.binding(function() { return dots.target })
           visible: opacity > 0
           enabled: shown
-          Behavior on opacity { NumberAnimation { duration: 350; easing.type: Easing.InOutQuad } }
+          // Mid-swipe the opacity tracks the fingers directly; on release (or a
+          // keyboard switch) it eases the rest of the way.
+          Behavior on opacity {
+            enabled: !root.swiping
+            NumberAnimation { duration: root.releaseMs; easing.type: Easing.OutCubic }
+          }
 
           // No backdrop pill: in the bottom margin it butted against the window
           // edge. The bars float alone, centered between window and screen edge.
