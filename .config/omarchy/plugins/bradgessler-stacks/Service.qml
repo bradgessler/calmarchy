@@ -286,7 +286,16 @@ Item {
             // Fingers right (dx > 0): windows move right, new ones enter from the left.
             return root.swipeDx > 0 ? x : 1 - x
           }
-          readonly property real target: (root.swiping && strip.ipc && root.swipeMon === strip.ipc.id)
+          readonly property bool swipeHere: root.swiping && strip.ipc && root.swipeMon === strip.ipc.id
+          // Swiping past the first or last workspace: nothing to fade to, so
+          // stay put and rubber-band with the fingers (more resistance the
+          // further they go), springing back on release.
+          readonly property bool atEdge: swipeHere && root.swipeTarget < 1
+          transform: Translate {
+            x: dots.atEdge ? 14 * (root.swipeDx > 0 ? 1 : -1) * (1 - Math.exp(-Math.abs(root.swipeDx) / 160)) : 0
+            Behavior on x { enabled: !root.swiping; SpringAnimation { spring: 4; damping: 0.35; epsilon: 0.1 } }
+          }
+          readonly property real target: (swipeHere && !atEdge)
             ? (modelData.ws === root.swipeFrom
                  ? Math.max(0, Math.min(1, 1 - root.swipeProgress / Math.max(0.001, handover)))
                : modelData.ws === root.swipeTarget

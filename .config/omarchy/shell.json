@@ -88,7 +88,7 @@
         }
       ]
     },
-    "position": "top"
+    "position": "left"
   },
   "cloneSourceRestores": [
     "bradgessler.menu"
