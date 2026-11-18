@@ -78,7 +78,7 @@ hl.config({
     -- Don't spawn empty workspaces when swiping past the last one.
     workspace_swipe_create_new = false,
     -- Trackpad travel for one full workspace; smaller = tracks the finger faster.
-    workspace_swipe_distance = 350,
+    workspace_swipe_distance = 350, -- the laptop's; scaled per display in looknfeel.lua
     -- Commit after dragging 30% of the way. Keep the force speed moderate: a very low
     -- value lets the last jitter at finger-lift pick the direction and snap back.
     workspace_swipe_cancel_ratio = 0.3,

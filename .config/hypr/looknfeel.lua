@@ -115,3 +115,24 @@ hl.animation({ leaf = "fadeIn", enabled = true, speed = 1.5, bezier = "easeOutQu
 -- instead of Qt Quick's distance-field text, which looks soft at menu sizes,
 -- worst at the UltraFine's 1.5x.
 hl.env("QML_DISABLE_DISTANCEFIELD", "1")
+
+-- Swipes scale with the display. Hyprland has one swipe distance (input.lua:
+-- 350) and one slide duration (4.5 = 450ms) for every display, so on the
+-- 2560pt-wide UltraFine the same finger travel and time cover twice the pixels
+-- and feel twice as fast. Scale both by the display's width on a curve (square
+-- root of the width ratio to the 1280pt laptop), capped at 1.6x so no display
+-- ever needs an impossible swipe. Re-applied whenever the focused display changes.
+local function scale_swipes()
+  local m = hl.get_active_monitor()
+  if not m or not m.width or not m.scale or m.scale == 0 then return end
+  local k = math.max(1, math.min(1.6, math.sqrt((m.width / m.scale) / 1280)))
+  hl.config({ gestures = { workspace_swipe_distance = math.floor(350 * k + 0.5) } })
+  hl.animation({ leaf = "workspaces", enabled = true, speed = 4.5 * k, bezier = "swipeOut", style = "slide" })
+end
+scale_swipes()
+-- The events fire just before the focus change lands, so look a beat later.
+for _, event in ipairs({ "config.reloaded", "monitor.focused", "workspace.active" }) do
+  hl.on(event, function()
+    hl.timer(scale_swipes, { timeout = 30, type = "oneshot" })
+  end)
+end

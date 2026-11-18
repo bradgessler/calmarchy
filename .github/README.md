@@ -42,7 +42,7 @@ DuckDuckGo is the default search, uBlock Origin Lite blocks ads using only built
 
 **Quiet top bar.** Workspaces on the left, battery % and date on the right, nothing else. The top bar can be black (it blends into the notch, like part of the hardware) or clear over the wallpaper: Spotlight → Trigger → Toggle → Clear/Black Bars, or `omarchy-bands clear|black`.
 
-**Multiple displays.** Each display has its own five workspaces, and trackpad swipes work on each. Moving a window to another display keeps its pane: a full-screen window stays full screen, and a left half lands in the left half.
+**Multiple displays.** Each display has its own five workspaces, and trackpad swipes work on each, scaled to the display's size: a wider display takes a longer swipe and a slower slide, on a curve so even a huge one stays swipeable. Moving a window to another display keeps its pane: a full-screen window stays full screen, and a left half lands in the left half.
 
 **Look.** Hand-made Monokai theme with a warm grey accent, the Inter UI font, 3pt window corners, neutral hairline borders. Every window has the same faint hairline edge and a small shadow that stays inside the gap between panes, so it never falls on another window; the active window's is darker. Nothing dims, so colours inside windows are never altered. Spotlight and Cmd+K cards get a faint hairline. No dock and no screensaver.
 
