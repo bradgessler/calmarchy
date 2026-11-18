@@ -132,12 +132,21 @@ end)
 -- Panel frames on a monitor, matching omarchy-snap (12pt gaps, inside the
 -- reserved bars): full and the two halves, as {x, y, w, h}.
 local PANEL_GAP = 12
+-- With clear bars the top bar includes the gap above the windows (see
+-- omarchy-bands), so there's no extra gap at the top.
+local function top_gap()
+  local f = io.open((os.getenv("HOME") or "") .. "/.config/omarchy/bands", "r")
+  local mode = f and f:read("*l") or ""
+  if f then f:close() end
+  return mode == "clear" and 0 or PANEL_GAP
+end
 local function panel_frames(m)
   local r = m.reserved or {}
+  local tg = top_gap()
   local ax = m.x + (r.left or 0) + PANEL_GAP
-  local ay = m.y + (r.top or 0) + PANEL_GAP
+  local ay = m.y + (r.top or 0) + tg
   local aw = m.width / m.scale - (r.left or 0) - (r.right or 0) - 2 * PANEL_GAP
-  local ah = m.height / m.scale - (r.top or 0) - (r.bottom or 0) - 2 * PANEL_GAP
+  local ah = m.height / m.scale - (r.top or 0) - (r.bottom or 0) - tg - PANEL_GAP
   local cw = (aw - PANEL_GAP) / 2
   local f = math.floor
   return {

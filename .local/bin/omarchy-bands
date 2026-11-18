@@ -12,5 +12,23 @@ case ${1:-} in
   black|clear) mode=$1 ;;
   *) echo "usage: omarchy-bands [black|clear|toggle]" >&2; exit 2 ;;
 esac
+# Remember which panel each window is in; the frames are about to change.
+memo=$(hyprctl -j clients | jq -r '.[] | select(.workspace.id > 0 and .mapped) | .address' |
+  while read -r a; do p=$(omarchy-snap --frame-of "$a") && echo "$a $p"; done)
+
 echo "$mode" >"$file"
+# Black: a 32pt bar (notch) / 26pt elsewhere, then the 12pt gap. Clear: the bar
+# takes that gap too (44 / 38) so its text centres between the screen top and
+# the windows, which stay where they were.
+tpl=$HOME/.config/omarchy/themed/shell.toml.tpl
+if [[ $mode == clear ]]; then notch=44 size=38; else notch=32 size=26; fi
+sed -i -E "s/^(notch-height +=) *[0-9]+/\1 $notch/; s/^(size-horizontal +=) *[0-9]+/\1 $size/" "$tpl"
+omarchy-theme-refresh >/dev/null 2>&1
 [[ $mode == clear ]] && omarchy-bar background none >/dev/null || omarchy-bar background opaque >/dev/null
+
+# Wait for the bar's new height to land, then put every window back in its panel.
+for _ in $(seq 1 40); do
+  [[ $(hyprctl -j monitors | jq -r '.[0].reserved[1]') == "$notch" || $(hyprctl -j monitors | jq -r '.[0].reserved[1]') == "$size" ]] && break
+  sleep 0.25
+done
+while read -r a p; do [[ -n $a ]] && omarchy-snap "$p" "$a"; done <<<"$memo"

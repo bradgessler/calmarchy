@@ -41,9 +41,11 @@ Item {
   // Every frame omarchy-snap can put a window in, for one monitor.
   function framesFor(m) {
     var r = m.reserved || [0, 0, 0, 0]
-    var ax = m.x + r[0] + gap, ay = m.y + r[1] + gap
+    // Clear bars: the top bar includes the top gap (omarchy-bands).
+    var tg = root.clearBands ? 0 : gap
+    var ax = m.x + r[0] + gap, ay = m.y + r[1] + tg
     var aw = m.width / m.scale - r[0] - r[2] - 2 * gap
-    var ah = m.height / m.scale - r[1] - r[3] - 2 * gap
+    var ah = m.height / m.scale - r[1] - r[3] - tg - gap
     var cw = (aw - gap) / 2, ch = (ah - gap) / 2, tw = (aw - 2 * gap) / 3
     function f(name, x, y, w, h) { return { name: name, x: Math.floor(x), y: Math.floor(y), w: Math.floor(w), h: Math.floor(h) } }
     return [

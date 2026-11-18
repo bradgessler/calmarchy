@@ -8,13 +8,18 @@
 # Panels: full left right top bottom tl tr bl br
 gap=${OMARCHY_SNAP_GAP:-12}
 tolerance=6
+# With clear bars the top bar has no visible edge, so it takes the space down to
+# the windows itself (taller bar, no gap under it) and its text centres between
+# the screen top and the windows. Black bars keep the gap. See omarchy-bands.
+topgap=$gap
+[[ $(cat "$HOME/.config/omarchy/bands" 2>/dev/null) == clear ]] && topgap=0
 
 frame() { # frame <panel> <monitor-id> -> "x y w h"
-  hyprctl -j monitors | jq -r --arg pos "$1" --argjson mid "$2" --argjson gap "$gap" '
+  hyprctl -j monitors | jq -r --arg pos "$1" --argjson mid "$2" --argjson gap "$gap" --argjson tg "$topgap" '
     .[] | select(.id == $mid)
-    | (.x + .reserved[0] + $gap) as $ax | (.y + .reserved[1] + $gap) as $ay
+    | (.x + .reserved[0] + $gap) as $ax | (.y + .reserved[1] + $tg) as $ay
     | (.width / .scale - .reserved[0] - .reserved[2] - 2 * $gap) as $aw
-    | (.height / .scale - .reserved[1] - .reserved[3] - 2 * $gap) as $ah
+    | (.height / .scale - .reserved[1] - .reserved[3] - $tg - $gap) as $ah
     | (($aw - $gap) / 2) as $cw | (($ah - $gap) / 2) as $ch
     | { full:   [$ax, $ay, $aw, $ah],
         left:   [$ax, $ay, $cw, $ah],            right:  [$ax + $cw + $gap, $ay, $cw, $ah],
