@@ -15,10 +15,10 @@ active           = "{{ red }}"
 # top/bottom bars; size-vertical is the width of left/right bars. With
 # scale-with-font enabled, these grow/shrink with [font] base-size.
 scale-with-font  = true
-size-horizontal  = 38
+size-horizontal  = 24
 size-vertical    = 28
 # The M2 Air notch is 64 physical px (32pt at scale 2); the platform file says 56.
-notch-height     = 44
+notch-height     = 32
 
 [hyprland]
 # Shared Hyprland-derived border tokens. Surface sections reference these so

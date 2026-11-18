@@ -18,17 +18,18 @@ memo=$(hyprctl -j clients | jq -r '.[] | select(.workspace.id > 0 and .mapped) |
 
 echo "$mode" >"$file"
 # Black: a 32pt bar (notch) / 26pt elsewhere, then the 12pt gap. Clear: the bar
-# takes that gap too (44 / 38) so its text centres between the screen top and
-# the windows, which stay where they were.
+# is all there is above the windows (no gap): 6pt above its 11.5pt contents and
+# 6pt below where there's no notch (24), and the notch's own 32 on the laptop,
+# since windows can't start under the notch.
 tpl=$HOME/.config/omarchy/themed/shell.toml.tpl
-if [[ $mode == clear ]]; then notch=44 size=38; else notch=32 size=26; fi
+if [[ $mode == clear ]]; then notch=32 size=24; else notch=32 size=26; fi
 sed -i -E "s/^(notch-height +=) *[0-9]+/\1 $notch/; s/^(size-horizontal +=) *[0-9]+/\1 $size/" "$tpl"
 omarchy-theme-refresh >/dev/null 2>&1
 [[ $mode == clear ]] && omarchy-bar background none >/dev/null || omarchy-bar background opaque >/dev/null
 
 # Wait for the bar's new height to land, then put every window back in its panel.
 for _ in $(seq 1 40); do
-  [[ $(hyprctl -j monitors | jq -r '.[0].reserved[1]') == "$notch" || $(hyprctl -j monitors | jq -r '.[0].reserved[1]') == "$size" ]] && break
+  [[ $(hyprctl -j monitors | jq -r --argjson n "$notch" --argjson s "$size" 'all(.[]; .reserved[1] == $n or .reserved[1] == $s)') == true ]] && break
   sleep 0.25
 done
 while read -r a p; do [[ -n $a ]] && omarchy-snap "$p" "$a"; done <<<"$memo"
