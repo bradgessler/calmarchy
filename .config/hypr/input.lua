@@ -129,3 +129,16 @@ for _, event in ipairs({ "monitor.added", "monitor.removed" }) do
     hl.timer(keep_workspaces, { timeout = 500, type = "oneshot" })
   end)
 end
+
+-- Scroll whatever is under the pointer, like macOS: the pointer's focus follows
+-- the mouse (hover, scroll) while the keyboard stays with the window you last
+-- clicked. Omarchy's floating mode sets follow_mouse = 0 (pointer ignored until
+-- a click) on load and when moving into a floating workspace, so set it back
+-- after each of those.
+local function scroll_under_pointer()
+  hl.config({ input = { follow_mouse = 2 } })
+end
+scroll_under_pointer()
+for _, event in ipairs({ "config.reloaded", "workspace.active", "monitor.focused" }) do
+  hl.on(event, scroll_under_pointer)
+end

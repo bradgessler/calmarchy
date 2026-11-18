@@ -100,6 +100,8 @@ keeps tabs; quitting doesn't restore them).
 
 ## Things that crash or bite
 
+- Scrolling goes to the window under the pointer: `follow_mouse = 2` (pointer follows the mouse, keyboard focus on click), reapplied in input.lua on load, config.reloaded, workspace.active and monitor.focused, because Omarchy's floating mode forces 0.
+
 - **Never resize or move a window in `window.open_early`**: it segfaults Hyprland
   (`Layout::CSpace::resizeTarget`); two crashes drop the session into safe mode.
 - Window-rule `move` is relative to the monitor; subtract its origin.
