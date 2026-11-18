@@ -136,3 +136,7 @@ for _, event in ipairs({ "config.reloaded", "monitor.focused", "workspace.active
     hl.timer(scale_swipes, { timeout = 30, type = "oneshot" })
   end)
 end
+
+-- Easier edge resizing: the grab zone outside each window's edge spans the
+-- whole 12pt gap between panes (Omarchy's 8 was hard to hit).
+hl.config({ general = { extend_border_grab_area = 12 } })

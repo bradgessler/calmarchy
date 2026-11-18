@@ -1,12 +1,25 @@
 #!/bin/bash
 # Run when a Super+drag ends: windows only live in panels, so land the dragged
-# window in one. Dropped mostly onto another window, it joins that stack;
+# window in one (a torn-out, non-pane-sized window just stays where it's dropped).
+# Dropped mostly onto another window, it joins that stack;
 # released near the top edge, it goes full; otherwise it takes the left or
 # right half under the pointer. Carried to another display, it keeps its panel.
 win=$(hyprctl -j activewindow)
 addr=$(jq -r '.address // empty' <<<"$win")
 [[ -n $addr && $(jq -r '.floating' <<<"$win") == true ]] || exit 0
 jq -e '(.tags // []) | any(startswith("omarchy-mode-opened"))' <<<"$win" >/dev/null || exit 0
+
+# A torn-out window (resized out of its pane, so no pane has its size) moves
+# freely: it stays where it's dropped. Dragging keeps a window's size, so a
+# pane-sized window was in a pane and still snaps into one.
+read -r ww wh < <(jq -r '"\(.size[0]) \(.size[1])"' <<<"$win")
+mid=$(jq -r '.monitor' <<<"$win")
+paned=0
+for p in full left right top bottom tl tr bl br; do
+  read -r _ _ fw fh < <(omarchy-snap --frame-on "$p" "$mid")
+  if (( ww - fw <= 6 && fw - ww <= 6 && wh - fh <= 6 && fh - wh <= 6 )); then paned=1; break; fi
+done
+(( paned )) || exit 0
 
 other=$(hyprctl -j clients | jq -r --argjson a "$win" '
   ($a.at) as $at | ($a.size) as $s
