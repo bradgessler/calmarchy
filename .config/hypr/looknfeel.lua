@@ -67,11 +67,13 @@ hl.config({
   general = {
     border_size = 1,
     col = {
-      -- 1pt is Hyprland's floor (2 physical px on Retina), so soften it to read as a hairline.
-      -- The same faint hairline on every window, just enough to define its
-      -- edge (none at all looked weird). Not a focus signal.
-      active_border = "rgba(ffffff1f)",
-      inactive_border = "rgba(ffffff1f)",
+      -- 1pt is Hyprland's floor (2 physical px on Retina). The same solid
+      -- near-black line on every window, just enough to define its edge (none
+      -- at all looked weird). Not a focus signal. Keep it opaque: translucent
+      -- white picked up the wallpaper and looked muddy, and it stays crisp
+      -- against both dark and bright windows.
+      active_border = "rgb(111111)",
+      inactive_border = "rgb(111111)",
     },
   },
   -- Slight rounding (3pt): just takes the edge off. Brad rejected 6 as too
@@ -81,17 +83,18 @@ hl.config({
   },
 })
 
--- No title bars on floating windows. Shadows stay inside the 8pt gap between
--- panes (range 7) so one never falls on another window: faint on inactive
--- windows, darker on the active one (Hyprland has one size for both, so the
--- active one reads "larger" by depth). Omarchy's 16pt shadows smudged the gaps
--- and its floating mode resets this after user config loads, so reapply once
--- every reload settles.
+-- No title bars on floating windows. Shadows fill the 12pt gap between panes
+-- (range 12, no offset) and stop there, so one never falls on another window.
+-- Soft and faint: a tight dark 7pt one looked bad, and a large macOS-style one
+-- (range 60, dropped 18) doesn't suit panes this close together. Fainter on
+-- inactive windows (Hyprland has one size for both, so the active one reads
+-- "larger" by depth). Omarchy's floating mode resets this after user config
+-- loads, so reapply once every reload settles.
 local function no_titlebars()
   hl.config({ plugin = { hyprbars = { enabled = false } } })
   hl.config({ decoration = { shadow = {
-    enabled = true, range = 7, render_power = 4, offset = "0 0",
-    color = "rgba(00000066)", color_inactive = "rgba(00000026)",
+    enabled = true, range = 12, render_power = 2, offset = "0 0",
+    color = "rgba(00000033)", color_inactive = "rgba(00000014)",
   } } })
   -- No dimming of inactive windows: it shifts their colours (comparing two
   -- photos side by side would be wrong).
